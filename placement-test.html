@@ -209,8 +209,8 @@
 
   <main class="page">
     <div class="test-header">
-      <h1 data-ar="🧠 اختبار تحديد المستوى" data-en="🧠 Placement Test">🧠 اختبار تحديد المستوى</h1>
-      <p data-ar="اختبار ذكي يتكيف مع مستواك - يجيب تامر ربيع على كل سؤال" data-en="Smart adaptive test - Tamer will grade each answer">اختبار ذكي يتكيف مع مستواك - يجيب تامر ربيع على كل سؤال</p>
+      <h1>🧠 اختبار تحديد المستوى</h1>
+      <p>اختبار ذكي يتكيف مع مستواك - يجيب تامر ربيع على كل سؤال</p>
     </div>
 
     <div class="progress-container" id="progressContainer">
@@ -227,25 +227,34 @@
     <div id="completionScreen" style="display:none"></div>
   </main>
 
-<script>
+<script><body>
 
+  <main class="page">
+    <div class="test-header">
+      <h1>🧠 اختبار تحديد المستوى</h1>
+      <p>اختبار ذكي يتكيف مع مستواك - يجيب تامر ربيع على كل سؤال</p>
+    </div>
+
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-label" id="progressLabel">السؤال 1 من 12</div>
+    </div>
+
+    <!-- Question Container -->
+    <div id="questionContainer"></div>
+
+    <!-- Completion Screen (hidden by default) -->
+    <div id="completionScreen" style="display:none"></div>
+  </main>
+
+<script>// ======================================================================
 // SUPABASE CONFIG
 // ======================================================================
-if (supabase) { 
-    try {
-      const { data, error } = await supabase
-        .from('student_progress')
-        .select('*')
-        .eq('user_id', currentStudent.user_id)
-        .single();
-
-      if (data) {
-        progress = { ...progress, ...data };
-      }
-    } catch(e) {
-      console.warn('Could not load progress from Supabase');
-    }
-  }
+const SUPABASE_URL = 'https://rwtdoefmhwaakrxmwklb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3dGRvZWZtaHdhYWtyeG13a2xiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1ODEwNDYsImV4cCI6MjA5OTE1NzA0Nn0.g8d6_uEeRNf80AwjgfX3AOuSRSJzm4brOTD8fVPnC1A';
+const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 // ======================================================================
 // CURRENT STUDENT
@@ -258,323 +267,61 @@ if (!currentStudent.user_id) {
 // ======================================================================
 // ADAPTIVE PLACEMENT TEST ENGINE
 // ======================================================================
-/*
-  COMPUTERIZED ADAPTIVE TEST (CAT) ALGORITHM:
-  - Based on Item Response Theory (IRT) principles
-  - Starts at medium difficulty (level 2)
-  - Correct answer → increase difficulty
-  - Wrong answer → decrease difficulty
-  - After 12 questions, calculate final level from accumulated score
-  - Categories covered: Vocabulary, Grammar, Phonics, Reading, Listening
-  - 5 difficulty levels: 1(Absolute Beginner) → 5(Advanced)
-*/
-
-// Test parameters
 const TOTAL_QUESTIONS = 12;
-const INITIAL_DIFFICULTY = 2; // Medium
+const INITIAL_DIFFICULTY = 2;
 const MAX_DIFFICULTY = 5;
 const MIN_DIFFICULTY = 1;
 
-// Question bank organized by category and difficulty
 const questionBank = {
-  // ========== DIFFICULTY 1 (Absolute Beginner) ==========
   1: [
-    {
-      category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '📝',
-      question: { ar: 'What is "كتاب" in English?', en: 'What does "كتاب" mean in Arabic?' },
-      options: { ar: ['Book', 'Pen', 'Bag', 'Door'], en: ['Book', 'Pen', 'Bag', 'Door'] },
-      correct: 0,
-      explanation: { ar: 'كتاب = Book 📖', en: 'كتاب means Book 📖' }
-    },
-    {
-      category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🎨',
-      question: { ar: 'Choose the color RED:', en: 'Choose the color RED:' },
-      options: { ar: ['🔴', '🔵', '🟢', '🟡'], en: ['🔴', '🔵', '🟢', '🟡'] },
-      correct: 0,
-      explanation: { ar: 'أحمر = Red 🔴', en: 'Red is red 🔴' }
-    },
-    {
-      category: 'grammar', catLabel: 'Grammar', catIcon: '📐',
-      question: { ar: 'I ___ a student. (am / is / are)', en: 'I ___ a student. (am / is / are)' },
-      options: { ar: ['am', 'is', 'are', 'be'], en: ['am', 'is', 'are', 'be'] },
-      correct: 0,
-      explanation: { ar: 'مع "I" نستخدم "am" ✅', en: 'Use "am" with "I" ✅' }
-    },
-    {
-      category: 'phonics', catLabel: 'Phonics', catIcon: '🔊',
-      question: { ar: 'Which word starts with "A" sound?', en: 'Which word starts with the "A" sound?' },
-      options: { ar: ['Apple 🍎', 'Cat 🐱', 'Dog 🐕', 'Fish 🐟'], en: ['Apple 🍎', 'Cat 🐱', 'Dog 🐕', 'Fish 🐟'] },
-      correct: 0,
-      explanation: { ar: 'Apple يبدأ بحرف A 🔤', en: 'Apple starts with letter A 🔤' }
-    },
-    {
-      category: 'reading', catLabel: 'Reading', catIcon: '📖',
-      question: { ar: 'Read: "I am Ahmed." Who is "Ahmed"?', en: 'Read: "I am Ahmed." Who is "Ahmed"?' },
-      options: { ar: ['a boy', 'a cat', 'a book', 'a car'], en: ['a boy', 'a cat', 'a book', 'a car'] },
-      correct: 0,
-      explanation: { ar: 'أحمد = اسم ولد 🧑', en: 'Ahmed is a boy\'s name 🧑' }
-    },
-    {
-      category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🐱',
-      question: { ar: 'What is "cat" in Arabic?', en: 'What does "cat" mean in Arabic?' },
-      options: { ar: ['قطة', 'كلب', 'سمكة', 'طائر'], en: ['Cat', 'Dog', 'Fish', 'Bird'] },
-      correct: 0,
-      explanation: { ar: 'Cat = قطة 🐱', en: 'Cat means قطة 🐱' }
-    },
-    {
-      category: 'grammar', catLabel: 'Grammar', catIcon: '📐',
-      question: { ar: 'She ___ a teacher. (am / is / are)', en: 'She ___ a teacher. (am / is / are)' },
-      options: { ar: ['is', 'am', 'are', 'be'], en: ['is', 'am', 'are', 'be'] },
-      correct: 0,
-      explanation: { ar: 'مع "She" نستخدم "is" ✅', en: 'Use "is" with "She" ✅' }
-    },
-    {
-      category: 'listening', catLabel: 'Listening', catIcon: '🎧',
-      question: { ar: 'How do you say "مرحبا" in English?', en: 'How do you say "مرحبا" in English?' },
-      options: { ar: ['Hello', 'Goodbye', 'Thank you', 'Please'], en: ['Hello', 'Goodbye', 'Thank you', 'Please'] },
-      correct: 0,
-      explanation: { ar: 'مرحبا = Hello 👋', en: 'مرحبا means Hello 👋' }
-    }
+    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '📝', question: { ar: 'What is "كتاب" in English?' }, options: { ar: ['Book', 'Pen', 'Bag', 'Door'] }, correct: 0, explanation: { ar: 'كتاب = Book 📖' } },
+    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🎨', question: { ar: 'Choose the color RED:' }, options: { ar: ['🔴', '🔵', '🟢', '🟡'] }, correct: 0, explanation: { ar: 'أحمر = Red 🔴' } },
+    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'I ___ a student. (am / is / are)' }, options: { ar: ['am', 'is', 'are', 'be'] }, correct: 0, explanation: { ar: 'مع "I" نستخدم "am" ✅' } },
+    { category: 'phonics', catLabel: 'Phonics', catIcon: '🔊', question: { ar: 'Which word starts with "A" sound?' }, options: { ar: ['Apple 🍎', 'Cat 🐱', 'Dog 🐕', 'Fish 🐟'] }, correct: 0, explanation: { ar: 'Apple يبدأ بحرف A 🔤' } },
+    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "I am Ahmed." Who is "Ahmed"?' }, options: { ar: ['a boy', 'a cat', 'a book', 'a car'] }, correct: 0, explanation: { ar: 'أحمد = اسم ولد 🧑' } },
+    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🐱', question: { ar: 'What is "cat" in Arabic?' }, options: { ar: ['قطة', 'كلب', 'سمكة', 'طائر'] }, correct: 0, explanation: { ar: 'Cat = قطة 🐱' } },
+    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'She ___ a teacher. (am / is / are)' }, options: { ar: ['is', 'am', 'are', 'be'] }, correct: 0, explanation: { ar: 'مع "She" نستخدم "is" ✅' } },
+    { category: 'listening', catLabel: 'Listening', catIcon: '🎧', question: { ar: 'How do you say "مرحبا" in English?' }, options: { ar: ['Hello', 'Goodbye', 'Thank you', 'Please'] }, correct: 0, explanation: { ar: 'مرحبا = Hello 👋' } }
   ],
-
-  // ========== DIFFICULTY 2 (Beginner) ==========
   2: [
-    {
-      category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '📝',
-      question: { ar: 'What does "beautiful" mean?', en: 'What does "beautiful" mean?' },
-      options: { ar: ['جميل', 'قبيح', 'كبير', 'صغير'], en: ['Pretty', 'Ugly', 'Big', 'Small'] },
-      correct: 0,
-      explanation: { ar: 'Beautiful = جميل ✨', en: 'Beautiful means Pretty ✨' }
-    },
-    {
-      category: 'grammar', catLabel: 'Grammar', catIcon: '📐',
-      question: { ar: 'They ___ playing football. (is / are / am)', en: 'They ___ playing football. (is / are / am)' },
-      options: { ar: ['are', 'is', 'am', 'be'], en: ['are', 'is', 'am', 'be'] },
-      correct: 0,
-      explanation: { ar: 'مع "They" نستخدم "are" ✅', en: 'Use "are" with "They" ✅' }
-    },
-    {
-      category: 'phonics', catLabel: 'Phonics', catIcon: '🔊',
-      question: { ar: 'Which word has a long "E" sound?', en: 'Which word has a long "E" sound?' },
-      options: { ar: ['See', 'Sit', 'Cat', 'Dog'], en: ['See', 'Sit', 'Cat', 'Dog'] },
-      correct: 0,
-      explanation: { ar: 'See له صوت E الطويل 🎵', en: 'See has the long "E" sound 🎵' }
-    },
-    {
-      category: 'reading', catLabel: 'Reading', catIcon: '📖',
-      question: { ar: 'Read: "My mother is a doctor." What does she do?', en: 'Read: "My mother is a doctor." What does she do?' },
-      options: { ar: ['طبيبة', 'معلمة', 'طباخة', 'ممرضة'], en: ['Doctor', 'Teacher', 'Cook', 'Nurse'] },
-      correct: 0,
-      explanation: { ar: 'Doctor = طبيبة 👩‍⚕️', en: 'Doctor means Doctor 👩‍⚕️' }
-    },
-    {
-      category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🏠',
-      question: { ar: 'What room do you sleep in?', en: 'What room do you sleep in?' },
-      options: { ar: ['Bedroom', 'Kitchen', 'Bathroom', 'Garden'], en: ['Bedroom', 'Kitchen', 'Bathroom', 'Garden'] },
-      correct: 0,
-      explanation: { ar: 'ننام في Bedroom 🛏️', en: 'You sleep in a Bedroom 🛏️' }
-    },
-    {
-      category: 'grammar', catLabel: 'Grammar', catIcon: '📐',
-      question: { ar: 'I ___ two brothers. (have / has / am)', en: 'I ___ two brothers. (have / has / am)' },
-      options: { ar: ['have', 'has', 'am', 'is'], en: ['have', 'has', 'am', 'is'] },
-      correct: 0,
-      explanation: { ar: 'مع "I" نستخدم "have" ✅', en: 'Use "have" with "I" ✅' }
-    },
-    {
-      category: 'listening', catLabel: 'Listening', catIcon: '🎧',
-      question: { ar: 'What is the opposite of "hot"?', en: 'What is the opposite of "hot"?' },
-      options: { ar: ['Cold', 'Warm', 'Wet', 'Dry'], en: ['Cold', 'Warm', 'Wet', 'Dry'] },
-      correct: 0,
-      explanation: { ar: 'Opposite of hot = Cold ❄️', en: 'Opposite of hot is Cold ❄️' }
-    },
-    {
-      category: 'reading', catLabel: 'Reading', catIcon: '📖',
-      question: { ar: 'Read: "The cat is on the table." Where is the cat?', en: 'Read: "The cat is on the table." Where is the cat?' },
-      options: { ar: ['on the table', 'under the table', 'in the table', 'near the table'], en: ['on the table', 'under the table', 'in the table', 'near the table'] },
-      correct: 0,
-      explanation: { ar: 'على الطاولة = on the table 🐱', en: 'The cat is ON the table 🐱' }
-    }
+    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '📝', question: { ar: 'What does "beautiful" mean?' }, options: { ar: ['جميل', 'قبيح', 'كبير', 'صغير'] }, correct: 0, explanation: { ar: 'Beautiful = جميل ✨' } },
+    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'They ___ playing football. (is / are / am)' }, options: { ar: ['are', 'is', 'am', 'be'] }, correct: 0, explanation: { ar: 'مع "They" نستخدم "are" ✅' } },
+    { category: 'phonics', catLabel: 'Phonics', catIcon: '🔊', question: { ar: 'Which word has a long "E" sound?' }, options: { ar: ['See', 'Sit', 'Cat', 'Dog'] }, correct: 0, explanation: { ar: 'See له صوت E الطويل 🎵' } },
+    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "My mother is a doctor." What does she do?' }, options: { ar: ['طبيبة', 'معلمة', 'طباخة', 'ممرضة'] }, correct: 0, explanation: { ar: 'Doctor = طبيبة 👩‍⚕️' } },
+    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🏠', question: { ar: 'What room do you sleep in?' }, options: { ar: ['Bedroom', 'Kitchen', 'Bathroom', 'Garden'] }, correct: 0, explanation: { ar: 'ننام في Bedroom 🛏️' } },
+    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'I ___ two brothers. (have / has / am)' }, options: { ar: ['have', 'has', 'am', 'is'] }, correct: 0, explanation: { ar: 'مع "I" نستخدم "have" ✅' } },
+    { category: 'listening', catLabel: 'Listening', catIcon: '🎧', question: { ar: 'What is the opposite of "hot"?' }, options: { ar: ['Cold', 'Warm', 'Wet', 'Dry'] }, correct: 0, explanation: { ar: 'Opposite of hot = Cold ❄️' } },
+    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "The cat is on the table." Where is the cat?' }, options: { ar: ['on the table', 'under the table', 'in the table', 'near the table'] }, correct: 0, explanation: { ar: 'على الطاولة = on the table 🐱' } }
   ],
-
-  // ========== DIFFICULTY 3 (Intermediate) ==========
   3: [
-    {
-      category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '📝',
-      question: { ar: 'What does "enormous" mean?', en: 'What does "enormous" mean?' },
-      options: { ar: ['ضخم جداً', 'صغير جداً', 'سريع', 'بطيء'], en: ['Very big', 'Very small', 'Fast', 'Slow'] },
-      correct: 0,
-      explanation: { ar: 'Enormous = ضخم جداً 🐘', en: 'Enormous means Very Big 🐘' }
-    },
-    {
-      category: 'grammar', catLabel: 'Grammar', catIcon: '📐',
-      question: { ar: 'She ___ to school every day. (go / goes / going)', en: 'She ___ to school every day. (go / goes / going)' },
-      options: { ar: ['goes', 'go', 'going', 'gone'], en: ['goes', 'go', 'going', 'gone'] },
-      correct: 0,
-      explanation: { ar: 'Present Simple مع She = goes ✅', en: 'Present Simple with She = goes ✅' }
-    },
-    {
-      category: 'phonics', catLabel: 'Phonics', catIcon: '🔊',
-      question: { ar: 'Which word is pronounced "fee-sh"?', en: 'Which word is pronounced "fee-sh"?' },
-      options: { ar: ['Fish', 'Flesh', 'Flash', 'Fresh'], en: ['Fish', 'Flesh', 'Flash', 'Fresh'] },
-      correct: 0,
-      explanation: { ar: 'Fish = ش 🔤', en: 'Fish sounds like "fee-sh" 🔤' }
-    },
-    {
-      category: 'reading', catLabel: 'Reading', catIcon: '📖',
-      question: { ar: 'Read: "The weather was terrible. It rained all day." What does "terrible" mean?', en: 'Read: "The weather was terrible. It rained all day." What does "terrible" mean?' },
-      options: { ar: ['سيء جداً', 'جيد جداً', 'ممتع', 'هادئ'], en: ['Very bad', 'Very good', 'Fun', 'Quiet'] },
-      correct: 0,
-      explanation: { ar: 'Terrible = سيء جداً 🌧️', en: 'Terrible means Very Bad 🌧️' }
-    },
-    {
-      category: 'grammar', catLabel: 'Grammar', catIcon: '📐',
-      question: { ar: 'We ___ watching TV now. (are / is / was)', en: 'We ___ watching TV now. (are / is / was)' },
-      options: { ar: ['are', 'is', 'was', 'were'], en: ['are', 'is', 'was', 'were'] },
-      correct: 0,
-      explanation: { ar: 'Present Continuous مع We = are ✅', en: 'Present Continuous with We = are ✅' }
-    },
-    {
-      category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🌍',
-      question: { ar: 'Which is a continent?', en: 'Which is a continent?' },
-      options: { ar: ['Africa', 'Egypt', 'Cairo', 'The Nile'], en: ['Africa', 'Egypt', 'Cairo', 'The Nile'] },
-      correct: 0,
-      explanation: { ar: 'Africa = قارة 🌍', en: 'Africa is a continent 🌍' }
-    },
-    {
-      category: 'listening', catLabel: 'Listening', catIcon: '🎧',
-      question: { ar: 'What is the past tense of "eat"?', en: 'What is the past tense of "eat"?' },
-      options: { ar: ['Ate', 'Eaten', 'Eating', 'Eats'], en: ['Ate', 'Eaten', 'Eating', 'Eats'] },
-      correct: 0,
-      explanation: { ar: 'Past tense of eat = Ate 🍽️', en: 'Past tense of "eat" is "Ate" 🍽️' }
-    },
-    {
-      category: 'reading', catLabel: 'Reading', catIcon: '📖',
-      question: { ar: 'Read: "Although it was raining, they went to the park." Did they go to the park?', en: 'Read: "Although it was raining, they went to the park." Did they go to the park?' },
-      options: { ar: ['Yes', 'No', 'Maybe', 'I don\'t know'], en: ['Yes', 'No', 'Maybe', 'I don\'t know'] },
-      correct: 0,
-      explanation: { ar: 'Yes, they went! "Although" = بالرغم من ✅', en: 'Yes! "Although" means despite the rain ✅' }
-    }
+    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '📝', question: { ar: 'What does "enormous" mean?' }, options: { ar: ['ضخم جداً', 'صغير جداً', 'سريع', 'بطيء'] }, correct: 0, explanation: { ar: 'Enormous = ضخم جداً 🐘' } },
+    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'She ___ to school every day. (go / goes / going)' }, options: { ar: ['goes', 'go', 'going', 'gone'] }, correct: 0, explanation: { ar: 'Present Simple مع She = goes ✅' } },
+    { category: 'phonics', catLabel: 'Phonics', catIcon: '🔊', question: { ar: 'Which word is pronounced "fee-sh"?' }, options: { ar: ['Fish', 'Flesh', 'Flash', 'Fresh'] }, correct: 0, explanation: { ar: 'Fish = ش 🔤' } },
+    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "The weather was terrible. It rained all day." What does "terrible" mean?' }, options: { ar: ['سيء جداً', 'جيد جداً', 'ممتع', 'هادئ'] }, correct: 0, explanation: { ar: 'Terrible = سيء جداً 🌧️' } },
+    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'We ___ watching TV now. (are / is / was)' }, options: { ar: ['are', 'is', 'was', 'were'] }, correct: 0, explanation: { ar: 'Present Continuous مع We = are ✅' } },
+    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🌍', question: { ar: 'Which is a continent?' }, options: { ar: ['Africa', 'Egypt', 'Cairo', 'The Nile'] }, correct: 0, explanation: { ar: 'Africa = قارة 🌍' } },
+    { category: 'listening', catLabel: 'Listening', catIcon: '🎧', question: { ar: 'What is the past tense of "eat"?' }, options: { ar: ['Ate', 'Eaten', 'Eating', 'Eats'] }, correct: 0, explanation: { ar: 'Past tense of eat = Ate 🍽️' } },
+    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "Although it was raining, they went to the park." Did they go to the park?' }, options: { ar: ['Yes', 'No', 'Maybe', 'I don\'t know'] }, correct: 0, explanation: { ar: 'Yes, they went! "Although" = بالرغم من ✅' } }
   ],
-
-  // ========== DIFFICULTY 4 (Upper Intermediate) ==========
   4: [
-    {
-      category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '📝',
-      question: { ar: 'What does "reluctant" mean?', en: 'What does "reluctant" mean?' },
-      options: { ar: ['متردد', 'سعيد', 'غاضب', 'متحمس'], en: ['Hesitant', 'Happy', 'Angry', 'Excited'] },
-      correct: 0,
-      explanation: { ar: 'Reluctant = متردد 🤔', en: 'Reluctant means Hesitant 🤔' }
-    },
-    {
-      category: 'grammar', catLabel: 'Grammar', catIcon: '📐',
-      question: { ar: 'If I ___ rich, I would buy a car. (am / was / were)', en: 'If I ___ rich, I would buy a car. (am / was / were)' },
-      options: { ar: ['were', 'am', 'was', 'is'], en: ['were', 'am', 'was', 'is'] },
-      correct: 0,
-      explanation: { ar: 'Second Conditional = were ✅', en: 'Second Conditional uses "were" ✅' }
-    },
-    {
-      category: 'reading', catLabel: 'Reading', catIcon: '📖',
-      question: { ar: 'Read: "The government implemented new policies to reduce pollution." What does "implemented" mean?', en: 'Read: "The government implemented new policies to reduce pollution." What does "implemented" mean?' },
-      options: { ar: ['طبقت', 'ألغت', 'ناقشت', 'درست'], en: ['Applied', 'Cancelled', 'Discussed', 'Studied'] },
-      correct: 0,
-      explanation: { ar: 'Implemented = طبقت / نفذت 📋', en: 'Implemented means Applied / Put into action 📋' }
-    },
-    {
-      category: 'grammar', catLabel: 'Grammar', catIcon: '📐',
-      question: { ar: 'By next year, I ___ English for 5 years. (will learn / will have learned / learn)', en: 'By next year, I ___ English for 5 years.' },
-      options: { ar: ['will have learned', 'will learn', 'learn', 'am learning'], en: ['will have learned', 'will learn', 'learn', 'am learning'] },
-      correct: 0,
-      explanation: { ar: 'Future Perfect = will have learned ✅', en: 'Future Perfect = will have learned ✅' }
-    },
-    {
-      category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🔬',
-      question: { ar: 'What is "photosynthesis"?', en: 'What is "photosynthesis"?' },
-      options: { ar: ['عملية صنع الغذاء في النبات', 'نوع من الحيوانات', 'كوكب', 'دولة'], en: ['Process of making food in plants', 'A type of animal', 'A planet', 'A country'] },
-      correct: 0,
-      explanation: { ar: 'Photosynthesis = البناء الضوئي 🌱', en: 'Photosynthesis = plant food-making process 🌱' }
-    },
-    {
-      category: 'listening', catLabel: 'Listening', catIcon: '🎧',
-      question: { ar: 'What is the passive voice of "They built the house"?', en: 'What is the passive voice of "They built the house"?' },
-      options: { ar: ['The house was built', 'The house is built', 'The house built', 'The house builds'], en: ['The house was built', 'The house is built', 'The house built', 'The house builds'] },
-      correct: 0,
-      explanation: { ar: 'Past passive = was built 🏠', en: 'Past passive = was built 🏠' }
-    },
-    {
-      category: 'reading', catLabel: 'Reading', catIcon: '📖',
-      question: { ar: 'Read: "Not only did she pass the exam, but she also got the highest score." What happened?', en: 'Read: "Not only did she pass the exam, but she also got the highest score." What happened?' },
-      options: { ar: ['نجحت وحصلت على أعلى درجة', 'رسبت', 'غابت عن الامتحان', 'تأخرت'], en: ['Passed and got highest score', 'Failed', 'Was absent', 'Was late'] },
-      correct: 0,
-      explanation: { ar: '"Not only...but also" = نجحت وحصلت على أعلى درجة ⭐', en: '"Not only...but also" = passed AND got highest score ⭐' }
-    },
-    {
-      category: 'grammar', catLabel: 'Grammar', catIcon: '📐',
-      question: { ar: 'I wish I ___ taller. (am / were / was / will be)', en: 'I wish I ___ taller. (am / were / was / will be)' },
-      options: { ar: ['were', 'am', 'was', 'will be'], en: ['were', 'am', 'was', 'will be'] },
-      correct: 0,
-      explanation: { ar: 'I wish + past subjunctive = were ✅', en: '"I wish" + subjunctive = were ✅' }
-    }
+    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '📝', question: { ar: 'What does "reluctant" mean?' }, options: { ar: ['متردد', 'سعيد', 'غاضب', 'متحمس'] }, correct: 0, explanation: { ar: 'Reluctant = متردد 🤔' } },
+    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'If I ___ rich, I would buy a car. (am / was / were)' }, options: { ar: ['were', 'am', 'was', 'is'] }, correct: 0, explanation: { ar: 'Second Conditional = were ✅' } },
+    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "The government implemented new policies to reduce pollution." What does "implemented" mean?' }, options: { ar: ['طبقت', 'ألغت', 'ناقشت', 'درست'] }, correct: 0, explanation: { ar: 'Implemented = طبقت / نفذت 📋' } },
+    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'By next year, I ___ English for 5 years. (will learn / will have learned / learn)' }, options: { ar: ['will have learned', 'will learn', 'learn', 'am learning'] }, correct: 0, explanation: { ar: 'Future Perfect = will have learned ✅' } },
+    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🔬', question: { ar: 'What is "photosynthesis"?' }, options: { ar: ['عملية صنع الغذاء في النبات', 'نوع من الحيوانات', 'كوكب', 'دولة'] }, correct: 0, explanation: { ar: 'Photosynthesis = البناء الضوئي 🌱' } },
+    { category: 'listening', catLabel: 'Listening', catIcon: '🎧', question: { ar: 'What is the passive voice of "They built the house"?' }, options: { ar: ['The house was built', 'The house is built', 'The house built', 'The house builds'] }, correct: 0, explanation: { ar: 'Past passive = was built 🏠' } },
+    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "Not only did she pass the exam, but she also got the highest score." What happened?' }, options: { ar: ['نجحت وحصلت على أعلى درجة', 'رسبت', 'غابت عن الامتحان', 'تأخرت'] }, correct: 0, explanation: { ar: '"Not only...but also" = نجحت وحصلت على أعلى درجة ⭐' } },
+    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'I wish I ___ taller. (am / were / was / will be)' }, options: { ar: ['were', 'am', 'was', 'will be'] }, correct: 0, explanation: { ar: 'I wish + past subjunctive = were ✅' } }
   ],
-
-  // ========== DIFFICULTY 5 (Advanced) ==========
   5: [
-    {
-      category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '📝',
-      question: { ar: 'What does "ubiquitous" mean?', en: 'What does "ubiquitous" mean?' },
-      options: { ar: ['في كل مكان', 'نادر', 'صعب', 'سهل'], en: ['Everywhere', 'Rare', 'Difficult', 'Easy'] },
-      correct: 0,
-      explanation: { ar: 'Ubiquitous = موجود في كل مكان 🌐', en: 'Ubiquitous means found everywhere 🌐' }
-    },
-    {
-      category: 'grammar', catLabel: 'Grammar', catIcon: '📐',
-      question: { ar: 'Had I known about the test, I ___ harder. (would study / would have studied / will study)', en: 'Had I known about the test, I ___ harder.' },
-      options: { ar: ['would have studied', 'would study', 'will study', 'studied'], en: ['would have studied', 'would study', 'will study', 'studied'] },
-      correct: 0,
-      explanation: { ar: 'Third Conditional inverted = would have studied ✅', en: 'Third Conditional (inverted) = would have studied ✅' }
-    },
-    {
-      category: 'reading', catLabel: 'Reading', catIcon: '📖',
-      question: { ar: 'Read: "The proliferation of social media has fundamentally altered communication paradigms." What does "proliferation" mean?', en: 'Read: "The proliferation of social media has fundamentally altered communication paradigms." What does "proliferation" mean?' },
-      options: { ar: ['انتشار سريع', 'انخفاض', 'تطور', 'اختفاء'], en: ['Rapid spread', 'Decline', 'Evolution', 'Disappearance'] },
-      correct: 0,
-      explanation: { ar: 'Proliferation = انتشار سريع 📱', en: 'Proliferation means Rapid Spread 📱' }
-    },
-    {
-      category: 'grammar', catLabel: 'Grammar', catIcon: '📐',
-      question: { ar: 'The book ___ by the student was very helpful. (reading / read / reads / to read)', en: 'The book ___ by the student was very helpful.' },
-      options: { ar: ['read', 'reading', 'reads', 'to read'], en: ['read', 'reading', 'reads', 'to read'] },
-      correct: 0,
-      explanation: { ar: 'Past participle passive = read ✅', en: 'Past participle passive = read ✅' }
-    },
-    {
-      category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🧪',
-      question: { ar: 'What does "mitigate" mean?', en: 'What does "mitigate" mean?' },
-      options: { ar: ['يخفف / يقلل', 'يزيد', 'يقضي', 'يتجاهل'], en: ['Reduce / Lessen', 'Increase', 'Eliminate', 'Ignore'] },
-      correct: 0,
-      explanation: { ar: 'Mitigate = يخفف / يقلل 📉', en: 'Mitigate means Reduce / Lessen 📉' }
-    },
-    {
-      category: 'listening', catLabel: 'Listening', catIcon: '🎧',
-      question: { ar: 'What is an "idiom"?', en: 'What is an "idiom"?' },
-      options: { ar: ['تعبير مجازي معناه مختلف عن كلماته', 'قاعدة نحوية', 'حرف جر', 'زمن فعل'], en: ['A phrase with figurative meaning', 'A grammar rule', 'A preposition', 'A verb tense'] },
-      correct: 0,
-      explanation: { ar: 'Idiom = تعبير مجازي 💡', en: 'Idiom = figurative expression 💡' }
-    },
-    {
-      category: 'reading', catLabel: 'Reading', catIcon: '📖',
-      question: { ar: 'Read: "Seldom have I encountered such a remarkable display of talent." What does this mean?', en: 'Read: "Seldom have I encountered such a remarkable display of talent." What does this mean?' },
-      options: { ar: ['نادراً ما رأيت موهبة بهذا القدر', 'أنا موهوب جداً', 'الموهبة شائعة', 'لا أهتم بالموهبة'], en: ['I rarely saw such talent', 'I am very talented', 'Talent is common', 'I don\'t care about talent'] },
-      correct: 0,
-      explanation: { ar: '"Seldom" = نادراً = rarely ⭐', en: '"Seldom" = rarely, never seen such talent ⭐' }
-    },
-    {
-      category: 'grammar', catLabel: 'Grammar', catIcon: '📐',
-      question: { ar: 'By the time she arrives, we ___ dinner. (will finish / will have finished / have finished)', en: 'By the time she arrives, we ___ dinner.' },
-      options: { ar: ['will have finished', 'will finish', 'have finished', 'finished'], en: ['will have finished', 'will finish', 'have finished', 'finished'] },
-      correct: 0,
-      explanation: { ar: 'Future Perfect with "By the time" = will have finished ✅', en: 'Future Perfect after "By the time" = will have finished ✅' }
-    }
+    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '📝', question: { ar: 'What does "ubiquitous" mean?' }, options: { ar: ['في كل مكان', 'نادر', 'صعب', 'سهل'] }, correct: 0, explanation: { ar: 'Ubiquitous = موجود في كل مكان 🌐' } },
+    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'Had I known about the test, I ___ harder. (would study / would have studied / will study)' }, options: { ar: ['would have studied', 'would study', 'will study', 'studied'] }, correct: 0, explanation: { ar: 'Third Conditional inverted = would have studied ✅' } },
+    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "The proliferation of social media has fundamentally altered communication paradigms." What does "proliferation" mean?' }, options: { ar: ['انتشار سريع', 'انخفاض', 'تطور', 'اختفاء'] }, correct: 0, explanation: { ar: 'Proliferation = انتشار سريع 📱' } },
+    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'The book ___ by the student was very helpful. (reading / read / reads / to read)' }, options: { ar: ['read', 'reading', 'reads', 'to read'] }, correct: 0, explanation: { ar: 'Past participle passive = read ✅' } },
+    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🧪', question: { ar: 'What does "mitigate" mean?' }, options: { ar: ['يخفف / يقلل', 'يزيد', 'يقضي', 'يتجاهل'] }, correct: 0, explanation: { ar: 'Mitigate = يخفف / يقلل 📉' } },
+    { category: 'listening', catLabel: 'Listening', catIcon: '🎧', question: { ar: 'What is an "idiom"?' }, options: { ar: ['تعبير مجازي معناه مختلف عن كلماته', 'قاعدة نحوية', 'حرف جر', 'زمن فعل'] }, correct: 0, explanation: { ar: 'Idiom = تعبير مجازي 💡' } },
+    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "Seldom have I encountered such a remarkable display of talent." What does this mean?' }, options: { ar: ['نادراً ما رأيت موهبة بهذا القدر', 'أنا موهوب جداً', 'الموهبة شائعة', 'لا أهتم بالموهبة'] }, correct: 0, explanation: { ar: '"Seldom" = نادراً = rarely ⭐' } },
+    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'By the time she arrives, we ___ dinner. (will finish / will have finished / have finished)' }, options: { ar: ['will have finished', 'will finish', 'have finished', 'finished'] }, correct: 0, explanation: { ar: 'Future Perfect with "By the time" = will have finished ✅' } }
   ]
 };
 
@@ -587,8 +334,8 @@ let categoryCounts = { vocabulary: 0, grammar: 0, phonics: 0, reading: 0, listen
 let usedQuestions = new Set();
 let currentQuestion = null;
 let isAnswering = false;
+let currentLang = 'ar'; // تم تثبيت العربية
 
-// Get random unused question at current difficulty
 function getRandomQuestion(level) {
   const available = questionBank[level].filter((q, i) => {
     const key = `${level}-${i}`;
@@ -596,7 +343,6 @@ function getRandomQuestion(level) {
   });
 
   if (available.length === 0) {
-    // Fall back to adjacent level
     const altLevel = level > 3 ? level - 1 : level + 1;
     if (questionBank[altLevel]) {
       return { question: questionBank[altLevel][Math.floor(Math.random() * questionBank[altLevel].length)], actualLevel: altLevel };
@@ -623,24 +369,14 @@ function renderQuestion() {
 
   const { shuffled, newCorrect } = shuffleOptions(currentQuestion);
 
-  // Track category
   const cat = currentQuestion.category;
   categoryCounts[cat]++;
 
-  // Update progress
   document.getElementById('progressFill').style.width = `${((questionIndex) / TOTAL_QUESTIONS) * 100}%`;
-  document.getElementById('progressLabel').textContent =
-    currentLang === 'ar'
-      ? `السؤال ${questionIndex + 1} من ${TOTAL_QUESTIONS}`
-      : `Question ${questionIndex + 1} of ${TOTAL_QUESTIONS}`;
+  document.getElementById('progressLabel').textContent = `السؤال ${questionIndex + 1} من ${TOTAL_QUESTIONS}`;
 
-  // Difficulty label
-  const diffLabels = { 1: 'Easy', 2: 'Beginner', 3: 'Intermediate', 4: 'Upper', 5: 'Advanced' };
   const diffClasses = { 1: 'diff-easy', 2: 'diff-easy', 3: 'diff-medium', 4: 'diff-medium', 5: 'diff-hard' };
-
-  const diffText = currentLang === 'ar'
-    ? ['مبتدئ', 'مبتدئ+', 'متوسط', 'فوق المتوسط', 'متقدم'][currentDifficulty - 1]
-    : diffLabels[currentDifficulty];
+  const diffText = ['مبتدئ', 'مبتدئ+', 'متوسط', 'فوق المتوسط', 'متقدم'][currentDifficulty - 1];
 
   const qText = currentQuestion.question[currentLang];
   const catLabel = currentQuestion.catLabel;
@@ -678,7 +414,6 @@ function checkAnswer(selected, correct, btn) {
   const allBtns = document.querySelectorAll('.option-btn');
   const feedbackArea = document.getElementById('feedbackArea');
 
-  // Mark correct/wrong
   allBtns.forEach(b => {
     const idx = parseInt(b.dataset.index);
     b.style.pointerEvents = 'none';
@@ -696,7 +431,6 @@ function checkAnswer(selected, correct, btn) {
     categoryScores[currentQuestion.category]++;
   }
 
-  // Feedback
   const explanation = currentQuestion.explanation[currentLang];
   feedbackArea.innerHTML = `
     <div class="feedback ${isCorrect ? 'correct' : 'wrong'}">
@@ -705,7 +439,6 @@ function checkAnswer(selected, correct, btn) {
     </div>
   `;
 
-  // Adaptive: adjust difficulty
   if (isCorrect && currentDifficulty < MAX_DIFFICULTY) {
     currentDifficulty++;
   } else if (!isCorrect && currentDifficulty > MIN_DIFFICULTY) {
@@ -714,7 +447,6 @@ function checkAnswer(selected, correct, btn) {
 
   questionIndex++;
 
-  // Next question or finish
   setTimeout(() => {
     if (questionIndex < TOTAL_QUESTIONS) {
       renderQuestion();
@@ -728,17 +460,15 @@ function finishTest() {
   document.getElementById('progressContainer').style.display = 'none';
   document.getElementById('questionContainer').style.display = 'none';
 
-  // Calculate level (1-5)
   const level = Math.min(5, Math.max(1, Math.round((score / TOTAL_QUESTIONS) * 4) + 1));
   const levelLabels = {
-    1: { ar: 'مبتدئ (Beginner)', en: 'Beginner' },
-    2: { ar: 'مبتدئ+ (Elementary)', en: 'Elementary' },
-    3: { ar: 'متوسط (Intermediate)', en: 'Intermediate' },
-    4: { ar: 'فوق المتوسط (Upper-Intermediate)', en: 'Upper-Intermediate' },
-    5: { ar: 'متقدم (Advanced)', en: 'Advanced' }
+    1: { ar: 'مبتدئ (Beginner)' },
+    2: { ar: 'مبتدئ+ (Elementary)' },
+    3: { ar: 'متوسط (Intermediate)' },
+    4: { ar: 'فوق المتوسط (Upper-Intermediate)' },
+    5: { ar: 'متقدم (Advanced)' }
   };
 
-  // Calculate percentages per category
   const categoryPercentages = {};
   for (const cat in categoryCounts) {
     if (categoryCounts[cat] > 0) {
@@ -748,7 +478,6 @@ function finishTest() {
     }
   }
 
-  // Save to Supabase and localStorage
   saveResult(level, categoryPercentages);
 
   const screen = document.getElementById('completionScreen');
@@ -756,13 +485,13 @@ function finishTest() {
   screen.innerHTML = `
     <div class="completion-card">
       <span class="big-emoji">🏆</span>
-      <h2 data-ar="اختبار تحديد المستوى مكتمل!" data-en="Placement Test Complete!">اختبار تحديد المستوى مكتمل!</h2>
+      <h2>اختبار تحديد المستوى مكتمل!</h2>
       <div class="level-result" id="levelResult">
-        ${currentLang === 'ar' ? 'مستواك:' : 'Your Level:'} ${levelLabels[level][currentLang]}
+        مستواك: ${levelLabels[level].ar}
       </div>
       <div class="details">
-        <span data-ar="إجابات صحيحة" data-en="Correct Answers">إجابات صحيحة</span>: <strong>${score} / ${TOTAL_QUESTIONS}</strong><br>
-        <span data-ar="التصنيف محفوظ في قاعدة البيانات - غير ظاهر للطالب" data-en="Classification saved in database - not shown to student">التصنيف محفوظ في قاعدة البيانات - غير ظاهر للطالب</span>
+        إجابات صحيحة: <strong>${score} / ${TOTAL_QUESTIONS}</strong><br>
+        التصنيف محفوظ في قاعدة البيانات - غير ظاهر للطالب
       </div>
       <div class="stats-grid">
         <div class="stat-box">
@@ -780,24 +509,18 @@ function finishTest() {
       </div>
       <a href="student_dashboard.html" class="btn-continue">
         <span>🎓</span>
-        <span data-ar="الذهاب للوحة التحكم" data-en="Go to Dashboard">الذهاب للوحة التحكم</span>
+        <span>الذهاب للوحة التحكم</span>
       </a>
     </div>
   `;
 
-  // Also change the header text
-  document.querySelector('.test-header h1').textContent = currentLang === 'ar'
-    ? '🎉 مبروك! تم تحديد المستوى'
-    : '🎉 Congratulations! Level Set';
-  document.querySelector('.test-header p').textContent = currentLang === 'ar'
-    ? 'تم حفظ مستواك في قاعدة البيانات'
-    : 'Your level has been saved to the database';
+  document.querySelector('.test-header h1').textContent = '🎉 مبروك! تم تحديد المستوى';
+  document.querySelector('.test-header p').textContent = 'تم حفظ مستواك في قاعدة البيانات';
 }
 
 async function saveResult(level, categoryPercentages) {
   const studentId = currentStudent.user_id;
 
-  // Save to localStorage first
   const students = JSON.parse(localStorage.getItem('elh_students') || '[]');
   const idx = students.findIndex(s => s.user_id === studentId);
   if (idx !== -1) {
@@ -811,8 +534,7 @@ async function saveResult(level, categoryPercentages) {
   current.test_scores = categoryPercentages;
   localStorage.setItem('elh_current_student', JSON.stringify(current));
 
-  // Save to Supabase
-  if (supabase) { {.
+  if (supabase) {
     try {
       const { error } = await supabase
         .from('students')
@@ -828,29 +550,6 @@ async function saveResult(level, categoryPercentages) {
     } catch (e) {
       console.warn('Supabase error:', e);
     }
-  }
-}
-
-// ======================================================================
-// LANGUAGE
-// ======================================================================
-let currentLang = 'ar';
-
-function toggleLanguage() {
-  currentLang = currentLang === 'ar' ? 'en' : 'ar';
-  const html = document.documentElement;
-  html.lang = currentLang;
-  html.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-  document.getElementById('langLabel').textContent = currentLang === 'ar' ? 'English' : 'عربي';
-
-  document.querySelectorAll('[data-ar]').forEach(el => {
-    const text = currentLang === 'ar' ? el.getAttribute('data-ar') : el.getAttribute('data-en');
-    if (text) el.textContent = text;
-  });
-
-  // Re-render if mid-test
-  if (currentQuestion && questionIndex < TOTAL_QUESTIONS) {
-    renderQuestion();
   }
 }
 </script>
