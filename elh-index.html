@@ -584,10 +584,15 @@
 // SUPABASE CONFIGURATION
 // ======================================================================
 // ⚠️ REPLACE with your actual Supabase credentials
-const SUPABASE_URL = 'sb_publishable_JZ3IJttDyEA6uTLDXysjyg_TbIrSOeQ';
+const SUPABASE_URL = 'https://rwtdoefmhwaakrxmwklb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3dGRvZWZtaHdhYWtyeG13a2xiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1ODEwNDYsImV4cCI6MjA5OTE1NzA0Nn0.g8d6_uEeRNf80AwjgfX3AOuSRSJzm4brOTD8fVPnC1A';
 
-const supabase = window.supabase ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+// في ملفك الحالي (بدون تغيير هيكلية السطر كثيراً):
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL; 
+const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+// وهنا يمكنك استخدام createClient إذا كنت تستخدم npm install، 
+// أو تستخدم window.supabase إذا كان لديك ملف script في HTML.
 
 // ======================================================================
 // LANGUAGE SYSTEM (Bilingual: Arabic/English)
@@ -713,7 +718,7 @@ document.getElementById('registrationForm').addEventListener('submit', async (e)
     };
 
     let result;
-    if (supabase && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+    if (supabase && SUPABASE_URL !== '') {
       result = await supabase
         .from('students')
         .insert([studentData])
