@@ -596,15 +596,24 @@ function showSuccess(phone, name, userId, classroom, relationship) {
     window.location.href = 'placement-test.html';
   };
 
-  overlay.classList.add('show');
-  createConfetti();
+  // عرض البالونات والواجهة
+overlay.classList.add('show');
+createConfetti();
 
-  // 🔥 إضافة انتقال تلقائي بعد 3 ثوانٍ
-  setTimeout(() => {
-    window.location.href = 'placement-test.html';
-  }, 3000);
-}
+// ===== تم تعديل هذا الجزء لضمان الانتقال =====
+// 1. التأكد من وجود مسار مطلق (/placement-test.html)
+const targetUrl = '/placement-test.html';
 
+// 2. إضافة الانتقال عند الضغط على زر "اختبار تحديد المستوى"
+nextBtn.onclick = function(e) {
+  e.preventDefault(); // منع أي سلوك افتراضي للرابط
+  window.location.replace(targetUrl);
+};
+
+// 3. الانتقال التلقائي بعد 5 ثوانٍ (زدت الوقت لضمان ظهور البالونات أولاً)
+setTimeout(() => {
+  window.location.replace(targetUrl);
+}, 5000);
 // ======================================================================
 // SERVICE WORKER REGISTRATION
 // ======================================================================
