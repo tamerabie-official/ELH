@@ -360,9 +360,9 @@
 // ======================================================================
 // SUPABASE CONFIG
 // ======================================================================
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
-const supabase = window.supabase ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+const SUPABASE_URL = 'sb_publishable_JZ3IJttDyEA6uTLDXysjyg_TbIrSOeQ';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3dGRvZWZtaHdhYWtyeG13a2xiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1ODEwNDYsImV4cCI6MjA5OTE1NzA0Nn0.g8d6_uEeRNf80AwjgfX3AOuSRSJzm4brOTD8fVPnC1A';
+const supabase = window.supabase ? supabase.createClient(sb_publishable_JZ3IJttDyEA6uTLDXysjyg_TbIrSOeQ, eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3dGRvZWZtaHdhYWtyeG13a2xiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1ODEwNDYsImV4cCI6MjA5OTE1NzA0Nn0.g8d6_uEeRNf80AwjgfX3AOuSRSJzm4brOTD8fVPnC1A) : null;
 
 // ======================================================================
 // LOAD STUDENT DATA
@@ -400,7 +400,7 @@ async function loadProgress() {
     last_login: new Date().toISOString()
   };
 
-  if (supabase && SUPABASE_URL !== 'YOUR_SUPABASE_URL' && currentStudent.user_id) {
+  if (supabase && SUPABASE_URL !== 'sb_publishable_JZ3IJttDyEA6uTLDXysjyg_TbIrSOeQ' && currentStudent.user_id) {
     try {
       const { data, error } = await supabase
         .from('student_progress')
