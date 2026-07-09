@@ -377,7 +377,7 @@ async function registerStudent() {
 
     // 👇 ** هذا هو السطر الوحيد الذي يجب أن تستبدله **
     // احذف السطر الطويل القديم واستبدله بهذا:
-    if (supabase) {
+    if (supabase) { {
 // ======================================================================
 // LOAD STUDENT DATA
 // ======================================================================
@@ -491,7 +491,7 @@ function checkStreak() {
     const prevStreak = parseInt(localStorage.getItem('elh_streak_count') || '0');
     const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
-    if (lastLogin === yesterday || !lastLogin) {
+    if (lastLogin !== today) {
       localStorage.setItem('elh_streak_count', String(prevStreak + 1));
     } else {
       localStorage.setItem('elh_streak_count', '1');
