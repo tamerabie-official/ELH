@@ -250,308 +250,274 @@
   </main>
 
 <script>// ======================================================================
-// SUPABASE CONFIG
+// ======================================================================
+// SUPABASE CONFIGURATION
 // ======================================================================
 const SUPABASE_URL = 'https://rwtdoefmhwaakrxmwklb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3dGRvZWZtaHdhYWtyeG13a2xiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1ODEwNDYsImV4cCI6MjA5OTE1NzA0Nn0.g8d6_uEeRNf80AwjgfX3AOuSRSJzm4brOTD8fVPnC1A';
 const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 // ======================================================================
-// CURRENT STUDENT
+// LANGUAGE SYSTEM (Bilingual: Arabic/English)
 // ======================================================================
-const currentStudent = JSON.parse(localStorage.getItem('elh_current_student') || '{}');
-if (!currentStudent.user_id) {
-  window.location.href = 'index.html';
-}
+let currentLang = 'ar';
 
-// ======================================================================
-// ADAPTIVE PLACEMENT TEST ENGINE
-// ======================================================================
-const TOTAL_QUESTIONS = 12;
-const INITIAL_DIFFICULTY = 2;
-const MAX_DIFFICULTY = 5;
-const MIN_DIFFICULTY = 1;
+function toggleLanguage() {
+  currentLang = currentLang === 'ar' ? 'en' : 'ar';
+  const html = document.documentElement;
+  html.lang = currentLang;
+  html.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('langLabel').textContent = currentLang === 'ar' ? 'English' : 'عربي';
 
-const questionBank = {
-  1: [
-    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '📝', question: { ar: 'What is "كتاب" in English?' }, options: { ar: ['Book', 'Pen', 'Bag', 'Door'] }, correct: 0, explanation: { ar: 'كتاب = Book 📖' } },
-    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🎨', question: { ar: 'Choose the color RED:' }, options: { ar: ['🔴', '🔵', '🟢', '🟡'] }, correct: 0, explanation: { ar: 'أحمر = Red 🔴' } },
-    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'I ___ a student. (am / is / are)' }, options: { ar: ['am', 'is', 'are', 'be'] }, correct: 0, explanation: { ar: 'مع "I" نستخدم "am" ✅' } },
-    { category: 'phonics', catLabel: 'Phonics', catIcon: '🔊', question: { ar: 'Which word starts with "A" sound?' }, options: { ar: ['Apple 🍎', 'Cat 🐱', 'Dog 🐕', 'Fish 🐟'] }, correct: 0, explanation: { ar: 'Apple يبدأ بحرف A 🔤' } },
-    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "I am Ahmed." Who is "Ahmed"?' }, options: { ar: ['a boy', 'a cat', 'a book', 'a car'] }, correct: 0, explanation: { ar: 'أحمد = اسم ولد 🧑' } },
-    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🐱', question: { ar: 'What is "cat" in Arabic?' }, options: { ar: ['قطة', 'كلب', 'سمكة', 'طائر'] }, correct: 0, explanation: { ar: 'Cat = قطة 🐱' } },
-    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'She ___ a teacher. (am / is / are)' }, options: { ar: ['is', 'am', 'are', 'be'] }, correct: 0, explanation: { ar: 'مع "She" نستخدم "is" ✅' } },
-    { category: 'listening', catLabel: 'Listening', catIcon: '🎧', question: { ar: 'How do you say "مرحبا" in English?' }, options: { ar: ['Hello', 'Goodbye', 'Thank you', 'Please'] }, correct: 0, explanation: { ar: 'مرحبا = Hello 👋' } }
-  ],
-  2: [
-    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '📝', question: { ar: 'What does "beautiful" mean?' }, options: { ar: ['جميل', 'قبيح', 'كبير', 'صغير'] }, correct: 0, explanation: { ar: 'Beautiful = جميل ✨' } },
-    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'They ___ playing football. (is / are / am)' }, options: { ar: ['are', 'is', 'am', 'be'] }, correct: 0, explanation: { ar: 'مع "They" نستخدم "are" ✅' } },
-    { category: 'phonics', catLabel: 'Phonics', catIcon: '🔊', question: { ar: 'Which word has a long "E" sound?' }, options: { ar: ['See', 'Sit', 'Cat', 'Dog'] }, correct: 0, explanation: { ar: 'See له صوت E الطويل 🎵' } },
-    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "My mother is a doctor." What does she do?' }, options: { ar: ['طبيبة', 'معلمة', 'طباخة', 'ممرضة'] }, correct: 0, explanation: { ar: 'Doctor = طبيبة 👩‍⚕️' } },
-    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🏠', question: { ar: 'What room do you sleep in?' }, options: { ar: ['Bedroom', 'Kitchen', 'Bathroom', 'Garden'] }, correct: 0, explanation: { ar: 'ننام في Bedroom 🛏️' } },
-    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'I ___ two brothers. (have / has / am)' }, options: { ar: ['have', 'has', 'am', 'is'] }, correct: 0, explanation: { ar: 'مع "I" نستخدم "have" ✅' } },
-    { category: 'listening', catLabel: 'Listening', catIcon: '🎧', question: { ar: 'What is the opposite of "hot"?' }, options: { ar: ['Cold', 'Warm', 'Wet', 'Dry'] }, correct: 0, explanation: { ar: 'Opposite of hot = Cold ❄️' } },
-    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "The cat is on the table." Where is the cat?' }, options: { ar: ['on the table', 'under the table', 'in the table', 'near the table'] }, correct: 0, explanation: { ar: 'على الطاولة = on the table 🐱' } }
-  ],
-  3: [
-    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '📝', question: { ar: 'What does "enormous" mean?' }, options: { ar: ['ضخم جداً', 'صغير جداً', 'سريع', 'بطيء'] }, correct: 0, explanation: { ar: 'Enormous = ضخم جداً 🐘' } },
-    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'She ___ to school every day. (go / goes / going)' }, options: { ar: ['goes', 'go', 'going', 'gone'] }, correct: 0, explanation: { ar: 'Present Simple مع She = goes ✅' } },
-    { category: 'phonics', catLabel: 'Phonics', catIcon: '🔊', question: { ar: 'Which word is pronounced "fee-sh"?' }, options: { ar: ['Fish', 'Flesh', 'Flash', 'Fresh'] }, correct: 0, explanation: { ar: 'Fish = ش 🔤' } },
-    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "The weather was terrible. It rained all day." What does "terrible" mean?' }, options: { ar: ['سيء جداً', 'جيد جداً', 'ممتع', 'هادئ'] }, correct: 0, explanation: { ar: 'Terrible = سيء جداً 🌧️' } },
-    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'We ___ watching TV now. (are / is / was)' }, options: { ar: ['are', 'is', 'was', 'were'] }, correct: 0, explanation: { ar: 'Present Continuous مع We = are ✅' } },
-    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🌍', question: { ar: 'Which is a continent?' }, options: { ar: ['Africa', 'Egypt', 'Cairo', 'The Nile'] }, correct: 0, explanation: { ar: 'Africa = قارة 🌍' } },
-    { category: 'listening', catLabel: 'Listening', catIcon: '🎧', question: { ar: 'What is the past tense of "eat"?' }, options: { ar: ['Ate', 'Eaten', 'Eating', 'Eats'] }, correct: 0, explanation: { ar: 'Past tense of eat = Ate 🍽️' } },
-    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "Although it was raining, they went to the park." Did they go to the park?' }, options: { ar: ['Yes', 'No', 'Maybe', 'I don\'t know'] }, correct: 0, explanation: { ar: 'Yes, they went! "Although" = بالرغم من ✅' } }
-  ],
-  4: [
-    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '📝', question: { ar: 'What does "reluctant" mean?' }, options: { ar: ['متردد', 'سعيد', 'غاضب', 'متحمس'] }, correct: 0, explanation: { ar: 'Reluctant = متردد 🤔' } },
-    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'If I ___ rich, I would buy a car. (am / was / were)' }, options: { ar: ['were', 'am', 'was', 'is'] }, correct: 0, explanation: { ar: 'Second Conditional = were ✅' } },
-    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "The government implemented new policies to reduce pollution." What does "implemented" mean?' }, options: { ar: ['طبقت', 'ألغت', 'ناقشت', 'درست'] }, correct: 0, explanation: { ar: 'Implemented = طبقت / نفذت 📋' } },
-    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'By next year, I ___ English for 5 years. (will learn / will have learned / learn)' }, options: { ar: ['will have learned', 'will learn', 'learn', 'am learning'] }, correct: 0, explanation: { ar: 'Future Perfect = will have learned ✅' } },
-    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🔬', question: { ar: 'What is "photosynthesis"?' }, options: { ar: ['عملية صنع الغذاء في النبات', 'نوع من الحيوانات', 'كوكب', 'دولة'] }, correct: 0, explanation: { ar: 'Photosynthesis = البناء الضوئي 🌱' } },
-    { category: 'listening', catLabel: 'Listening', catIcon: '🎧', question: { ar: 'What is the passive voice of "They built the house"?' }, options: { ar: ['The house was built', 'The house is built', 'The house built', 'The house builds'] }, correct: 0, explanation: { ar: 'Past passive = was built 🏠' } },
-    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "Not only did she pass the exam, but she also got the highest score." What happened?' }, options: { ar: ['نجحت وحصلت على أعلى درجة', 'رسبت', 'غابت عن الامتحان', 'تأخرت'] }, correct: 0, explanation: { ar: '"Not only...but also" = نجحت وحصلت على أعلى درجة ⭐' } },
-    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'I wish I ___ taller. (am / were / was / will be)' }, options: { ar: ['were', 'am', 'was', 'will be'] }, correct: 0, explanation: { ar: 'I wish + past subjunctive = were ✅' } }
-  ],
-  5: [
-    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '📝', question: { ar: 'What does "ubiquitous" mean?' }, options: { ar: ['في كل مكان', 'نادر', 'صعب', 'سهل'] }, correct: 0, explanation: { ar: 'Ubiquitous = موجود في كل مكان 🌐' } },
-    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'Had I known about the test, I ___ harder. (would study / would have studied / will study)' }, options: { ar: ['would have studied', 'would study', 'will study', 'studied'] }, correct: 0, explanation: { ar: 'Third Conditional inverted = would have studied ✅' } },
-    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "The proliferation of social media has fundamentally altered communication paradigms." What does "proliferation" mean?' }, options: { ar: ['انتشار سريع', 'انخفاض', 'تطور', 'اختفاء'] }, correct: 0, explanation: { ar: 'Proliferation = انتشار سريع 📱' } },
-    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'The book ___ by the student was very helpful. (reading / read / reads / to read)' }, options: { ar: ['read', 'reading', 'reads', 'to read'] }, correct: 0, explanation: { ar: 'Past participle passive = read ✅' } },
-    { category: 'vocabulary', catLabel: 'Vocabulary', catIcon: '🧪', question: { ar: 'What does "mitigate" mean?' }, options: { ar: ['يخفف / يقلل', 'يزيد', 'يقضي', 'يتجاهل'] }, correct: 0, explanation: { ar: 'Mitigate = يخفف / يقلل 📉' } },
-    { category: 'listening', catLabel: 'Listening', catIcon: '🎧', question: { ar: 'What is an "idiom"?' }, options: { ar: ['تعبير مجازي معناه مختلف عن كلماته', 'قاعدة نحوية', 'حرف جر', 'زمن فعل'] }, correct: 0, explanation: { ar: 'Idiom = تعبير مجازي 💡' } },
-    { category: 'reading', catLabel: 'Reading', catIcon: '📖', question: { ar: 'Read: "Seldom have I encountered such a remarkable display of talent." What does this mean?' }, options: { ar: ['نادراً ما رأيت موهبة بهذا القدر', 'أنا موهوب جداً', 'الموهبة شائعة', 'لا أهتم بالموهبة'] }, correct: 0, explanation: { ar: '"Seldom" = نادراً = rarely ⭐' } },
-    { category: 'grammar', catLabel: 'Grammar', catIcon: '📐', question: { ar: 'By the time she arrives, we ___ dinner. (will finish / will have finished / have finished)' }, options: { ar: ['will have finished', 'will finish', 'have finished', 'finished'] }, correct: 0, explanation: { ar: 'Future Perfect with "By the time" = will have finished ✅' } }
-  ]
-};
-
-// State
-let currentDifficulty = INITIAL_DIFFICULTY;
-let questionIndex = 0;
-let score = 0;
-let categoryScores = { vocabulary: 0, grammar: 0, phonics: 0, reading: 0, listening: 0 };
-let categoryCounts = { vocabulary: 0, grammar: 0, phonics: 0, reading: 0, listening: 0 };
-let usedQuestions = new Set();
-let currentQuestion = null;
-let isAnswering = false;
-let currentLang = 'ar'; // تم تثبيت العربية
-
-function getRandomQuestion(level) {
-  const available = questionBank[level].filter((q, i) => {
-    const key = `${level}-${i}`;
-    return !usedQuestions.has(key);
+  document.querySelectorAll('[data-ar]').forEach(el => {
+    const text = currentLang === 'ar' ? el.getAttribute('data-ar') : el.getAttribute('data-en');
+    if (text) el.textContent = text;
   });
 
-  if (available.length === 0) {
-    const altLevel = level > 3 ? level - 1 : level + 1;
-    if (questionBank[altLevel]) {
-      return { question: questionBank[altLevel][Math.floor(Math.random() * questionBank[altLevel].length)], actualLevel: altLevel };
-    }
-  }
-
-  const q = available[Math.floor(Math.random() * available.length)];
-  const idx = questionBank[level].indexOf(q);
-  usedQuestions.add(`${level}-${idx}`);
-  return { question: q, actualLevel: level };
+  document.querySelectorAll('[data-ar-placeholder]').forEach(el => {
+    const placeholder = currentLang === 'ar'
+      ? el.getAttribute('data-ar-placeholder')
+      : el.getAttribute('data-en-placeholder');
+    if (placeholder) el.placeholder = placeholder;
+  });
 }
 
-function shuffleOptions(q) {
-  const correctAnswer = q.options[currentLang][q.correct];
-  const shuffled = [...q.options[currentLang]].sort(() => Math.random() - 0.5);
-  const newCorrect = shuffled.indexOf(correctAnswer);
-  return { shuffled, newCorrect };
-}
-
-function renderQuestion() {
-  const container = document.getElementById('questionContainer');
-  const result = getRandomQuestion(currentDifficulty);
-  currentQuestion = result.question;
-
-  const { shuffled, newCorrect } = shuffleOptions(currentQuestion);
-
-  const cat = currentQuestion.category;
-  categoryCounts[cat]++;
-
-  document.getElementById('progressFill').style.width = `${((questionIndex) / TOTAL_QUESTIONS) * 100}%`;
-  document.getElementById('progressLabel').textContent = `السؤال ${questionIndex + 1} من ${TOTAL_QUESTIONS}`;
-
-  const diffClasses = { 1: 'diff-easy', 2: 'diff-easy', 3: 'diff-medium', 4: 'diff-medium', 5: 'diff-hard' };
-  const diffText = ['مبتدئ', 'مبتدئ+', 'متوسط', 'فوق المتوسط', 'متقدم'][currentDifficulty - 1];
-
-  const qText = currentQuestion.question[currentLang];
-  const catLabel = currentQuestion.catLabel;
-  const catIcon = currentQuestion.catIcon;
-
-  let html = `
-    <div class="question-card">
-      <div>
-        <span class="category-badge">${catIcon} ${catLabel}</span>
-        <span class="difficulty-badge ${diffClasses[currentDifficulty]}">${diffText}</span>
-      </div>
-      <div class="question-text">${qText}</div>
-      <div class="options">
-  `;
-
-  const letters = ['A', 'B', 'C', 'D'];
-  shuffled.forEach((opt, i) => {
-    html += `
-      <button class="option-btn" onclick="checkAnswer(${i}, ${newCorrect}, this)" data-index="${i}">
-        <span class="option-letter">${letters[i]}</span>
-        <span>${opt}</span>
-      </button>
+// ======================================================================
+// CONFETTI ANIMATION
+// ======================================================================
+function createConfetti() {
+  const container = document.getElementById('confetti');
+  const colors = ['#ff7aa2', '#6cc7ff', '#7ed957', '#ffb347', '#a78bfa', '#59d6c7'];
+  for (let i = 0; i < 50; i++) {
+    const conf = document.createElement('div');
+    conf.style.cssText = `
+      position: absolute;
+      width: ${6 + Math.random() * 8}px;
+      height: ${6 + Math.random() * 8}px;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+      left: ${Math.random() * 100}%;
+      top: -10px;
+      animation: confettiFall ${2 + Math.random() * 3}s ease-out ${Math.random() * 2}s forwards;
     `;
-  });
-
-  html += `</div><div id="feedbackArea"></div></div>`;
-  container.innerHTML = html;
-  isAnswering = false;
+    container.appendChild(conf);
+  }
+  if (!document.getElementById('confettiStyle')) {
+    const style = document.createElement('style');
+    style.id = 'confettiStyle';
+    style.textContent = `
+      @keyframes confettiFall {
+        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
 }
 
-function checkAnswer(selected, correct, btn) {
-  if (isAnswering) return;
-  isAnswering = true;
+// ======================================================================
+// FORM VALIDATION & SUBMISSION
+// ======================================================================
+document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-  const allBtns = document.querySelectorAll('.option-btn');
-  const feedbackArea = document.getElementById('feedbackArea');
+  const btn = document.getElementById('submitBtn');
+  const errorEl = document.getElementById('errorMsg');
+  errorEl.classList.remove('show');
 
-  allBtns.forEach(b => {
-    const idx = parseInt(b.dataset.index);
-    b.style.pointerEvents = 'none';
-    if (idx === correct) {
-      b.classList.add('correct-answer');
-    }
-    if (idx === selected && selected !== correct) {
-      b.classList.add('wrong-answer');
-    }
-  });
+  const fullName = document.getElementById('fullName').value.trim();
+  const userId = document.getElementById('userId').value.trim();
+  const whatsapp = document.getElementById('whatsapp').value.trim();
+  const classroom = document.getElementById('classroom').value;
+  const relationship = document.querySelector('input[name="relationship"]:checked');
 
-  const isCorrect = selected === correct;
-  if (isCorrect) {
-    score++;
-    categoryScores[currentQuestion.category]++;
+  if (!fullName || !userId || !whatsapp || !classroom || !relationship) {
+    showError(currentLang === 'ar'
+      ? '⚠️ يرجى إكمال جميع الحقول المطلوبة'
+      : '⚠️ Please fill in all required fields'
+    );
+    return;
   }
 
-  const explanation = currentQuestion.explanation[currentLang];
-  feedbackArea.innerHTML = `
-    <div class="feedback ${isCorrect ? 'correct' : 'wrong'}">
-      ${isCorrect ? '✅ أحسنت! Great job!' : '❌ للأسف! Not quite!'}
-      <br><small style="opacity:.8">${explanation}</small>
-    </div>
-  `;
-
-  if (isCorrect && currentDifficulty < MAX_DIFFICULTY) {
-    currentDifficulty++;
-  } else if (!isCorrect && currentDifficulty > MIN_DIFFICULTY) {
-    currentDifficulty--;
+  const cleanedPhone = whatsapp.replace(/\s/g, '').replace(/^0/, '20');
+  if (!/^201[0-9]{9}$/.test(cleanedPhone)) {
+    showError(currentLang === 'ar'
+      ? '⚠️ رقم الواتساب غير صحيح. ابدأ بـ 01x'
+      : '⚠️ Invalid WhatsApp number. Start with 01x'
+    );
+    return;
   }
 
-  questionIndex++;
+  if (userId.length < 3) {
+    showError(currentLang === 'ar'
+      ? '⚠️ اسم المستخدم يجب أن يكون 3 أحرف على الأقل'
+      : '⚠️ Username must be at least 3 characters'
+    );
+    return;
+  }
 
-  setTimeout(() => {
-    if (questionIndex < TOTAL_QUESTIONS) {
-      renderQuestion();
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const studentData = {
+      full_name: fullName,
+      user_id: userId.toLowerCase(),
+      whatsapp: cleanedPhone,
+      classroom: classroom,
+      relationship: relationship.value,
+      level: 'unplaced',
+      created_at: new Date().toISOString(),
+      language: currentLang
+    };
+
+    let result;
+    
+    if (supabase) {
+      result = await supabase
+        .from('students')
+        .insert([studentData])
+        .select();
+
+      if (result.error) {
+        if (result.error.message?.includes('unique') || result.error.code === '23505') {
+          throw new Error('duplicate');
+        }
+        throw result.error;
+      }
+    }
+
+    // Save to localStorage as fallback
+    const students = JSON.parse(localStorage.getItem('elh_students') || '[]');
+    const exists = students.find(s => s.user_id === userId.toLowerCase());
+    if (exists) {
+      throw new Error('duplicate');
+    }
+    students.push({ ...studentData, id: Date.now() });
+    localStorage.setItem('elh_students', JSON.stringify(students));
+
+    localStorage.setItem('elh_current_student', JSON.stringify({
+      ...studentData,
+      whatsapp_clean: cleanedPhone
+    }));
+
+    showSuccess(cleanedPhone, fullName, userId, classroom, relationship.value);
+
+  } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = currentLang === 'ar'
+      ? '<span>🚀 تسجيل وبدء التعلم</span>'
+      : '<span>🚀 Register & Start Learning</span>';
+
+    if (err.message === 'duplicate') {
+      showError(currentLang === 'ar'
+        ? '⚠️ اسم المستخدم مستخدم بالفعل. اختر اسماً آخر.'
+        : '⚠️ Username already taken. Please choose another.'
+      );
     } else {
-      finishTest();
+      showError(currentLang === 'ar'
+        ? '⚠️ حدث خطأ. تأكد من إعدادات Supabase.'
+        : '⚠️ An error occurred. Check Supabase settings.'
+      );
     }
-  }, 2000);
+  }
+});
+
+function showError(msg) {
+  const errorEl = document.getElementById('errorMsg');
+  errorEl.textContent = msg;
+  errorEl.classList.add('show');
 }
 
-function finishTest() {
-  document.getElementById('progressContainer').style.display = 'none';
-  document.getElementById('questionContainer').style.display = 'none';
+function showSuccess(phone, name, userId, classroom, relationship) {
+  const overlay = document.getElementById('successOverlay');
+  const waLink = document.getElementById('whatsappLink');
+  const nextBtn = document.getElementById('nextBtn');
 
-  const level = Math.min(5, Math.max(1, Math.round((score / TOTAL_QUESTIONS) * 4) + 1));
-  const levelLabels = {
-    1: { ar: 'مبتدئ (Beginner)' },
-    2: { ar: 'مبتدئ+ (Elementary)' },
-    3: { ar: 'متوسط (Intermediate)' },
-    4: { ar: 'فوق المتوسط (Upper-Intermediate)' },
-    5: { ar: 'متقدم (Advanced)' }
+  const relationshipLabels = {
+    father: currentLang === 'ar' ? 'الأب' : 'Father',
+    mother: currentLang === 'ar' ? 'الأم' : 'Mother',
+    other: currentLang === 'ar' ? 'آخر' : 'Other'
   };
 
-  const categoryPercentages = {};
-  for (const cat in categoryCounts) {
-    if (categoryCounts[cat] > 0) {
-      categoryPercentages[cat] = Math.round((categoryScores[cat] / categoryCounts[cat]) * 100);
-    } else {
-      categoryPercentages[cat] = 0;
-    }
-  }
+  const classroomLabels = {
+    primary_1: currentLang === 'ar' ? 'أول ابتدائي' : 'Primary 1',
+    primary_2: currentLang === 'ar' ? 'ثاني ابتدائي' : 'Primary 2',
+    primary_3: currentLang === 'ar' ? 'ثالث ابتدائي' : 'Primary 3',
+    primary_4: currentLang === 'ar' ? 'رابع ابتدائي' : 'Primary 4',
+    primary_5: currentLang === 'ar' ? 'خامس ابتدائي' : 'Primary 5',
+    primary_6: currentLang === 'ar' ? 'سادس ابتدائي' : 'Primary 6',
+    prep_1: currentLang === 'ar' ? 'أول إعدادي' : 'Prep 1',
+    prep_2: currentLang === 'ar' ? 'ثاني إعدادي' : 'Prep 2',
+    prep_3: currentLang === 'ar' ? 'ثالث إعدادي' : 'Prep 3',
+  };
 
-  saveResult(level, categoryPercentages);
+  const waMessage = currentLang === 'ar'
+    ? `شكراً لاختيارك تطبيق ELH 🎉%0A%0A📛 الاسم: ${name}%0A🆔 User ID: ${userId}%0A🎓 الصف: ${classroomLabels[classroom] || classroom}%0A👨‍👩‍👦 العلاقة: ${relationshipLabels[relationship]}`
+    : `Thank you for choosing ELH! 🎉%0A%0A📛 Name: ${name}%0A🆔 User ID: ${userId}%0A🎓 Class: ${classroomLabels[classroom] || classroom}%0A👨‍👩‍👦 Relationship: ${relationshipLabels[relationship]}`;
 
-  const screen = document.getElementById('completionScreen');
-  screen.style.display = 'block';
-  screen.innerHTML = `
-    <div class="completion-card">
-      <span class="big-emoji">🏆</span>
-      <h2>اختبار تحديد المستوى مكتمل!</h2>
-      <div class="level-result" id="levelResult">
-        مستواك: ${levelLabels[level].ar}
-      </div>
-      <div class="details">
-        إجابات صحيحة: <strong>${score} / ${TOTAL_QUESTIONS}</strong><br>
-        التصنيف محفوظ في قاعدة البيانات - غير ظاهر للطالب
-      </div>
-      <div class="stats-grid">
-        <div class="stat-box">
-          <strong>${categoryPercentages.vocabulary || 0}%</strong>
-          <span>Vocabulary</span>
-        </div>
-        <div class="stat-box">
-          <strong>${categoryPercentages.grammar || 0}%</strong>
-          <span>Grammar</span>
-        </div>
-        <div class="stat-box">
-          <strong>${categoryPercentages.reading || 0}%</strong>
-          <span>Reading</span>
-        </div>
-      </div>
-      <a href="student_dashboard.html" class="btn-continue">
-        <span>🎓</span>
-        <span>الذهاب للوحة التحكم</span>
-      </a>
-    </div>
-  `;
+  const waFullMessage = `${waMessage}%0A%0A💚 شركاء في بناء الإنسان 💚`;
 
-  document.querySelector('.test-header h1').textContent = '🎉 مبروك! تم تحديد المستوى';
-  document.querySelector('.test-header p').textContent = 'تم حفظ مستواك في قاعدة البيانات';
+  waLink.href = `https://wa.me/${phone}?text=${waFullMessage}`;
+
+  // إضافة حدث للزر للانتقال عند الضغط
+  nextBtn.onclick = function() {
+    window.location.href = 'placement-test.html';
+  };
+
+  overlay.classList.add('show');
+  createConfetti();
+
+  // 🔥 إضافة انتقال تلقائي بعد 3 ثوانٍ
+  setTimeout(() => {
+    window.location.href = 'placement-test.html';
+  }, 3000);
 }
 
-async function saveResult(level, categoryPercentages) {
-  const studentId = currentStudent.user_id;
-
-  const students = JSON.parse(localStorage.getItem('elh_students') || '[]');
-  const idx = students.findIndex(s => s.user_id === studentId);
-  if (idx !== -1) {
-    students[idx].level = level;
-    students[idx].test_scores = categoryPercentages;
-    localStorage.setItem('elh_students', JSON.stringify(students));
-  }
-
-  const current = JSON.parse(localStorage.getItem('elh_current_student') || '{}');
-  current.level = level;
-  current.test_scores = categoryPercentages;
-  localStorage.setItem('elh_current_student', JSON.stringify(current));
-
-  if (supabase) {
-    try {
-      const { error } = await supabase
-        .from('students')
-        .update({
-          level: level,
-          test_scores: categoryPercentages,
-          test_completed: true,
-          test_date: new Date().toISOString()
-        })
-        .eq('user_id', studentId);
-
-      if (error) console.warn('Supabase update error:', error);
-    } catch (e) {
-      console.warn('Supabase error:', e);
-    }
-  }
+// ======================================================================
+// SERVICE WORKER REGISTRATION
+// ======================================================================
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(() => console.log('SW registered'))
+    .catch(err => console.log('SW failed:', err));
 }
+
+// إضافة التصميم الخاص بـ Spinner
+const styleSpinner = document.createElement('style');
+styleSpinner.textContent = `
+  .spinner {
+    width: 22px;
+    height: 22px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .error-msg {
+    background: rgba(255, 107, 107, 0.08);
+    border: 1px solid rgba(255, 107, 107, 0.2);
+    color: var(--error);
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: none;
+    text-align: center;
+  }
+  .error-msg.show { display: block; animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+`;
+document.head.appendChild(styleSpinner);
+
 </script>
 </body>
 </html>

@@ -14,41 +14,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
-  <!-- ===== DESIGN PRINCIPLES (Based on Educational Psychology Research) =====
-       1. Rounded shapes reduce anxiety (Child Psychology, 2023)
-       2. Warm pastel colors increase engagement without overstimulation
-       3. Large touch targets (min 44px) for motor skill development
-       4. Glass morphism creates depth perception and focus
-       5. Emoji companions reduce loneliness during learning (Kahn, 2024)
-       6. Arabic RTL-first design respects native language learners
-       7. Micro-interactions provide dopamine reward feedback
-       =================================================================== -->
-
   <style>
     :root {
-      /* ===== COLOR PALETTE: Warm Pastels (Child-Safe, Non-Overstimulating) =====
-         Based on: Color Psychology in Children's App Design (2024)
-         - Pink (#ff7aa2): Warmth, encouragement, achievement
-         - Sky Blue (#6cc7ff): Calm, trust, focus
-         - Green (#7ed957): Growth, success, positive reinforcement
-         - Orange (#ffb347): Energy, creativity, engagement
-         - Purple (#a78bfa): Imagination, reward, magic
-         - Teal (#59d6c7): Balance, confidence, refresh
-      */
-      --bg1: #fff8fb;
-      --bg2: #eef7ff;
-      --ink: #203047;
-      --muted: #6b7a90;
+      --bg1: #fff8fb; --bg2: #eef7ff; --ink: #203047; --muted: #6b7a90;
       --card: rgba(255, 255, 255, 0.82);
       --shadow: 0 16px 40px rgba(35, 55, 90, 0.10);
       --glass: rgba(255, 255, 255, 0.78);
       --radius: 28px;
-      --a1: #ff7aa2;
-      --a2: #6cc7ff;
-      --a3: #7ed957;
-      --a4: #ffb347;
-      --a5: #a78bfa;
-      --a6: #59d6c7;
+      --a1: #ff7aa2; --a2: #6cc7ff; --a3: #7ed957; --a4: #ffb347;
+      --a5: #a78bfa; --a6: #59d6c7;
       --error: #ff6b6b;
       --success: #51cf66;
     }
@@ -68,7 +42,6 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ===== LANGUAGE TOGGLE BUTTON ===== */
     .lang-toggle {
       position: fixed;
       top: 16px;
@@ -96,7 +69,6 @@
     }
     .lang-toggle .globe { font-size: 1.1rem; }
 
-    /* ===== MAIN CONTAINER ===== */
     .page {
       max-width: 520px;
       margin: 0 auto;
@@ -104,7 +76,6 @@
       min-height: 100vh;
     }
 
-    /* ===== GLASS CARD ===== */
     .glass-card {
       background: var(--glass);
       backdrop-filter: blur(16px);
@@ -121,7 +92,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ===== HEADER SECTION ===== */
     .brand {
       text-align: center;
       margin-bottom: 28px;
@@ -153,7 +123,6 @@
       line-height: 1.5;
     }
 
-    /* ===== FORM ELEMENTS ===== */
     .form-group {
       margin-bottom: 18px;
       position: relative;
@@ -210,7 +179,6 @@
       font-weight: 400;
     }
 
-    /* ===== RADIO GROUP ===== */
     .radio-group {
       display: flex;
       gap: 10px;
@@ -249,7 +217,6 @@
       border-color: rgba(255, 122, 162, 0.3);
     }
 
-    /* ===== SUBMIT BUTTON ===== */
     .btn-submit {
       width: 100%;
       padding: 16px 24px;
@@ -281,174 +248,8 @@
       cursor: not-allowed;
       transform: none;
     }
-
-    /* ===== LOADING SPINNER ===== */
-    .spinner {
-      width: 22px;
-      height: 22px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* ===== ERROR MESSAGE ===== */
-    .error-msg {
-      background: rgba(255, 107, 107, 0.08);
-      border: 1px solid rgba(255, 107, 107, 0.2);
-      color: var(--error);
-      padding: 12px 16px;
-      border-radius: 14px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 16px;
-      display: none;
-      text-align: center;
-    }
-    .error-msg.show { display: block; animation: shake 0.4s ease; }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-6px); }
-      75% { transform: translateX(6px); }
-    }
-
-    /* ===== SUCCESS OVERLAY ===== */
-    .success-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(20px);
-      z-index: 200;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      text-align: center;
-      padding: 40px 24px;
-      animation: fadeIn 0.4s ease;
-    }
-    .success-overlay.show { display: flex; }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    .success-overlay .success-icon {
-      font-size: 5rem;
-      animation: popIn 0.5s ease 0.2s both;
-    }
-    @keyframes popIn {
-      0% { transform: scale(0); opacity: 0; }
-      60% { transform: scale(1.2); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    .success-overlay h2 {
-      font-size: 1.8rem;
-      font-weight: 900;
-      background: linear-gradient(135deg, var(--a3), var(--a2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin: 16px 0 8px;
-    }
-    .success-overlay p {
-      color: var(--muted);
-      font-size: 1rem;
-      font-weight: 600;
-      max-width: 360px;
-      line-height: 1.6;
-    }
-    .success-overlay .whatsapp-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 28px;
-      border: none;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #25d366, #128c7e);
-      color: #fff;
-      font-family: 'Cairo', sans-serif;
-      font-size: 1rem;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 10px 30px rgba(37, 211, 102, 0.35);
-      transition: all 0.3s ease;
-      margin-top: 20px;
-      text-decoration: none;
-    }
-    .success-overlay .whatsapp-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 40px rgba(37, 211, 102, 0.45);
-    }
-    .success-overlay .next-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 28px;
-      border: none;
-      border-radius: 20px;
-      background: linear-gradient(135deg, var(--a5), var(--a2));
-      color: #fff;
-      font-family: 'Cairo', sans-serif;
-      font-size: 1rem;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 10px 30px rgba(167, 139, 250, 0.35);
-      transition: all 0.3s ease;
-      margin-top: 12px;
-      text-decoration: none;
-    }
-    .success-overlay .next-btn:hover {
-      transform: translateY(-2px);
-    }
-    .success-overlay .confetti {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-      overflow: hidden;
-    }
-
-    /* ===== FLOATING PARTICLES ===== */
-    .particle {
-      position: fixed;
-      border-radius: 50%;
-      opacity: 0.3;
-      pointer-events: none;
-      animation: float 8s ease-in-out infinite;
-    }
-    .particle:nth-child(1) { width: 60px; height: 60px; background: var(--a1); top: 10%; left: 5%; animation-delay: 0s; }
-    .particle:nth-child(2) { width: 40px; height: 40px; background: var(--a2); top: 60%; left: 85%; animation-delay: 2s; }
-    .particle:nth-child(3) { width: 50px; height: 50px; background: var(--a3); top: 80%; left: 15%; animation-delay: 4s; }
-    .particle:nth-child(4) { width: 35px; height: 35px; background: var(--a5); top: 30%; left: 90%; animation-delay: 1s; }
-    @keyframes float {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-20px) rotate(180deg); }
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 380px) {
-      .page { padding: 70px 14px 30px; }
-      .glass-card { padding: 24px 16px; border-radius: 22px; }
-      .brand-logo { font-size: 2.8rem; }
-      .radio-group { gap: 8px; }
-      .radio-option { min-width: 80px; }
-    }
-
-    /* ===== RTL/LTR ADJUSTMENTS ===== */
-    [dir="ltr"] .page { direction: ltr; }
-    [dir="ltr"] .form-group select {
-      background-position: right 16px center;
-      padding-left: 16px;
-      padding-right: 38px;
-    }
-  </style>
-</head>
-<body>
+</style>
+</head><body>
 
   <!-- Floating Particles -->
   <div class="particle"></div>
@@ -579,34 +380,12 @@
     </a>
   </div>
 
-<script>
-// ======================================================================
+<script>// ======================================================================
 // SUPABASE CONFIGURATION
 // ======================================================================
-// 1. هذا السطر يبقى كما هو (الرابط الحقيقي)
 const SUPABASE_URL = 'https://rwtdoefmhwaakrxmwklb.supabase.co';
-
-// 2. هذا السطر يبقى كما هو (المفتاح الطويل الحقيقي)
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3dGRvZWZtaHdhYWtyeG13a2xiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1ODEwNDYsImV4cCI6MjA5OTE1NzA0Nn0.g8d6_uEeRNf80AwjgfX3AOuSRSJzm4brOTD8fVPnC1A';
-
-// 3. هذا السطر يبقى كما هو (ينشئ الاتصال)
 const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
-
-// ==========================================
-// داخل دالة التسجيل (حيث تطلب مني التعديل):
-
-async function registerStudent() {
-    // ... (تجميع البيانات)
-
-    // 👇 ** هذا هو السطر الوحيد الذي يجب أن تستبدله **
-    // احذف السطر الطويل القديم واستبدله بهذا:
-    if (supabase) {  
-        const result = await supabase
-            .from('students')
-            .insert([studentData])
-            .select();
-    }
-}
 
 // ======================================================================
 // LANGUAGE SYSTEM (Bilingual: Arabic/English)
@@ -620,13 +399,11 @@ function toggleLanguage() {
   html.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
   document.getElementById('langLabel').textContent = currentLang === 'ar' ? 'English' : 'عربي';
 
-  // Translate all elements with data-ar/data-en
   document.querySelectorAll('[data-ar]').forEach(el => {
     const text = currentLang === 'ar' ? el.getAttribute('data-ar') : el.getAttribute('data-en');
     if (text) el.textContent = text;
   });
 
-  // Translate placeholders
   document.querySelectorAll('[data-ar-placeholder]').forEach(el => {
     const placeholder = currentLang === 'ar'
       ? el.getAttribute('data-ar-placeholder')
@@ -655,7 +432,6 @@ function createConfetti() {
     `;
     container.appendChild(conf);
   }
-  // Add confetti animation keyframes dynamically
   if (!document.getElementById('confettiStyle')) {
     const style = document.createElement('style');
     style.id = 'confettiStyle';
@@ -679,14 +455,12 @@ document.getElementById('registrationForm').addEventListener('submit', async (e)
   const errorEl = document.getElementById('errorMsg');
   errorEl.classList.remove('show');
 
-  // Collect data
   const fullName = document.getElementById('fullName').value.trim();
   const userId = document.getElementById('userId').value.trim();
   const whatsapp = document.getElementById('whatsapp').value.trim();
   const classroom = document.getElementById('classroom').value;
   const relationship = document.querySelector('input[name="relationship"]:checked');
 
-  // Validation
   if (!fullName || !userId || !whatsapp || !classroom || !relationship) {
     showError(currentLang === 'ar'
       ? '⚠️ يرجى إكمال جميع الحقول المطلوبة'
@@ -695,7 +469,6 @@ document.getElementById('registrationForm').addEventListener('submit', async (e)
     return;
   }
 
-  // Validate WhatsApp format (Egyptian numbers)
   const cleanedPhone = whatsapp.replace(/\s/g, '').replace(/^0/, '20');
   if (!/^201[0-9]{9}$/.test(cleanedPhone)) {
     showError(currentLang === 'ar'
@@ -705,7 +478,6 @@ document.getElementById('registrationForm').addEventListener('submit', async (e)
     return;
   }
 
-  // Check username uniqueness
   if (userId.length < 3) {
     showError(currentLang === 'ar'
       ? '⚠️ اسم المستخدم يجب أن يكون 3 أحرف على الأقل'
@@ -714,12 +486,10 @@ document.getElementById('registrationForm').addEventListener('submit', async (e)
     return;
   }
 
-  // Loading state
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner"></div>';
 
   try {
-    // Save to Supabase
     const studentData = {
       full_name: fullName,
       user_id: userId.toLowerCase(),
@@ -732,7 +502,21 @@ document.getElementById('registrationForm').addEventListener('submit', async (e)
     };
 
     let result;
-if (supabase) {
+    
+    // تم إصلاح شرط الاتصال بـ Supabase وإزالة الشرط الزائد
+    if (supabase) {
+      result = await supabase
+        .from('students')
+        .insert([studentData])
+        .select();
+
+      if (result.error) {
+        if (result.error.message?.includes('unique') || result.error.code === '23505') {
+          throw new Error('duplicate');
+        }
+        throw result.error;
+      }
+    }
 
     // Save to localStorage as fallback
     const students = JSON.parse(localStorage.getItem('elh_students') || '[]');
@@ -743,13 +527,11 @@ if (supabase) {
     students.push({ ...studentData, id: Date.now() });
     localStorage.setItem('elh_students', JSON.stringify(students));
 
-    // Save current student for other pages
     localStorage.setItem('elh_current_student', JSON.stringify({
       ...studentData,
       whatsapp_clean: cleanedPhone
     }));
 
-    // Show success
     showSuccess(cleanedPhone, fullName, userId, classroom, relationship.value);
 
   } catch (err) {
@@ -800,7 +582,6 @@ function showSuccess(phone, name, userId, classroom, relationship) {
     prep_3: currentLang === 'ar' ? 'ثالث إعدادي' : 'Prep 3',
   };
 
-  // WhatsApp message
   const waMessage = currentLang === 'ar'
     ? `شكراً لاختيارك تطبيق ELH 🎉%0A%0A📛 الاسم: ${name}%0A🆔 User ID: ${userId}%0A🎓 الصف: ${classroomLabels[classroom] || classroom}%0A👨‍👩‍👦 العلاقة: ${relationshipLabels[relationship]}`
     : `Thank you for choosing ELH! 🎉%0A%0A📛 Name: ${name}%0A🆔 User ID: ${userId}%0A🎓 Class: ${classroomLabels[classroom] || classroom}%0A👨‍👩‍👦 Relationship: ${relationshipLabels[relationship]}`;
@@ -809,7 +590,6 @@ function showSuccess(phone, name, userId, classroom, relationship) {
 
   waLink.href = `https://wa.me/${phone}?text=${waFullMessage}`;
 
-  // Show overlay
   overlay.classList.add('show');
   createConfetti();
 }
@@ -822,6 +602,42 @@ if ('serviceWorker' in navigator) {
     .then(() => console.log('SW registered'))
     .catch(err => console.log('SW failed:', err));
 }
+
+// إضافة التصميم الخاص بـ Spinner (لأنه لم يكن مضمنًا في الجزء الأول)
+const styleSpinner = document.createElement('style');
+styleSpinner.textContent = `
+  .spinner {
+    width: 22px;
+    height: 22px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .error-msg {
+    background: rgba(255, 107, 107, 0.08);
+    border: 1px solid rgba(255, 107, 107, 0.2);
+    color: var(--error);
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: none;
+    text-align: center;
+  }
+  .error-msg.show { display: block; animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+`;
+document.head.appendChild(styleSpinner);
+
 </script>
 </body>
 </html>
