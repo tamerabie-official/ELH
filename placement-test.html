@@ -231,9 +231,31 @@
 
 // SUPABASE CONFIG
 // ======================================================================
+// 1. هذا السطر يبقى كما هو (الرابط الحقيقي)
 const SUPABASE_URL = 'https://rwtdoefmhwaakrxmwklb.supabase.co';
+
+// 2. هذا السطر يبقى كما هو (المفتاح الطويل الحقيقي)
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3dGRvZWZtaHdhYWtyeG13a2xiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1ODEwNDYsImV4cCI6MjA5OTE1NzA0Nn0.g8d6_uEeRNf80AwjgfX3AOuSRSJzm4brOTD8fVPnC1A';
+
+// 3. هذا السطر يبقى كما هو (ينشئ الاتصال)
 const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+// ==========================================
+// داخل دالة التسجيل (حيث تطلب مني التعديل):
+
+async function registerStudent() {
+    // ... (تجميع البيانات)
+
+    // 👇 ** هذا هو السطر الوحيد الذي يجب أن تستبدله **
+    // احذف السطر الطويل القديم واستبدله بهذا:
+    if (supabase) {  
+        const result = await supabase
+            .from('students')
+            .insert([studentData])
+            .select();
+    }
+}
+
 // ======================================================================
 // CURRENT STUDENT
 // ======================================================================
