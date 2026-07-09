@@ -238,7 +238,10 @@ const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 // وهنا يمكنك استخدام createClient إذا كنت تستخدم npm install، 
 // أو تستخدم window.supabase إذا كان لديك ملف script في HTML.6uTLDXysjyg_TbIrSOeQ';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3dGRvZWZtaHdhYWtyeG13a2xiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1ODEwNDYsImV4cCI6MjA5OTE1NzA0Nn0.g8d6_uEeRNf80AwjgfX3AOuSRSJzm4brOTD8fVPnC1A';
-const supabase = window.supabase ? supabase.createClient(SUPABASE_, SUPABASE_KEY) : null;
+// الخطأ الحالي (في كل ملف):
+const supabase = window.supabase ? supabase.createClient(, SUPABASE_KEY) : null; // يوجد فاصلة وفارغ!
+  
+}upabase.createClient(SUPABASE_, SUPABASE_KEY) : null;
 
 // ======================================================================
 // CURRENT STUDENT
@@ -805,7 +808,7 @@ async function saveResult(level, categoryPercentages) {
   localStorage.setItem('elh_current_student', JSON.stringify(current));
 
   // Save to Supabase
-  if (supabase && SUPABASE_URL !== 'https://rwtdoefmhwaakrxmwklb.supabase.co') {
+  if (supabase && SUPABASE_URL !== YOUR_SUPABASE_URL'&& ) {
     try {
       const { error } = await supabase
         .from('students')
