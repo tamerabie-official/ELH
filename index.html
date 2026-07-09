@@ -381,6 +381,7 @@
   </div>
 
 <script>// ======================================================================
+// ======================================================================
 // SUPABASE CONFIGURATION
 // ======================================================================
 const SUPABASE_URL = 'https://rwtdoefmhwaakrxmwklb.supabase.co';
@@ -503,7 +504,6 @@ document.getElementById('registrationForm').addEventListener('submit', async (e)
 
     let result;
     
-    // تم إصلاح شرط الاتصال بـ Supabase وإزالة الشرط الزائد
     if (supabase) {
       result = await supabase
         .from('students')
@@ -563,6 +563,7 @@ function showError(msg) {
 function showSuccess(phone, name, userId, classroom, relationship) {
   const overlay = document.getElementById('successOverlay');
   const waLink = document.getElementById('whatsappLink');
+  const nextBtn = document.getElementById('nextBtn');
 
   const relationshipLabels = {
     father: currentLang === 'ar' ? 'الأب' : 'Father',
@@ -590,8 +591,18 @@ function showSuccess(phone, name, userId, classroom, relationship) {
 
   waLink.href = `https://wa.me/${phone}?text=${waFullMessage}`;
 
+  // إضافة حدث للزر للانتقال عند الضغط
+  nextBtn.onclick = function() {
+    window.location.href = 'placement-test.html';
+  };
+
   overlay.classList.add('show');
   createConfetti();
+
+  // 🔥 إضافة انتقال تلقائي بعد 3 ثوانٍ
+  setTimeout(() => {
+    window.location.href = 'placement-test.html';
+  }, 3000);
 }
 
 // ======================================================================
@@ -603,7 +614,7 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.log('SW failed:', err));
 }
 
-// إضافة التصميم الخاص بـ Spinner (لأنه لم يكن مضمنًا في الجزء الأول)
+// إضافة التصميم الخاص بـ Spinner
 const styleSpinner = document.createElement('style');
 styleSpinner.textContent = `
   .spinner {
