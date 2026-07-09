@@ -745,13 +745,7 @@ async function registerStudent() {
 
     // 👇 ** هذا هو السطر الوحيد الذي يجب أن تستبدله **
     // احذف السطر الطويل القديم واستبدله بهذا:
-    if (supabase) {  
-        const result = await supabase
-            .from('students')
-            .insert([studentData])
-            .select();
-    }
-}
+    if (supabase) {
 
 // ======================================================================
 // NAVIGATION
