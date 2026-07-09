@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#6cc7ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>English Learning Hub - Unit 1: Hello</title>
+  <link rel="icon" type="image/png" href="icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- ===== UNIT PAGE: 6 PARTS =====
+       Part 1: HELLO (Listen & Repeat)
+       Part 2: HOW ARE YOU? (Dialogue Practice)
+       Part 3: MY NAME IS... (Self Introduction)
+       Part 4: LET'S TALK (Conversation Practice)
+       Part 5: GOODBYE! (Farewell Expressions)
+       Part 6: REVIEW (Quiz + Stars)
+
+       Design: Same glass morphism from pasted_content_2.txt
+       Interactive: Click-to-play, drag & drop, quiz mode
+  -->
+
+  <style>
+    :root{
+      --bg1:#fff8fb;
+      --bg2:#eef7ff;
+      --ink:#203047;
+      --muted:#6b7a90;
+      --card:#ffffff;
+      --shadow:0 16px 40px rgba(35,55,90,.10);
+      --radius:28px;
+      --a1:#ff7aa2;
+      --a2:#6cc7ff;
+      --a3:#7ed957;
+      --a4:#ffb347;
+      --a5:#a78bfa;
+      --a6:#59d6c7;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      margin:0;font-family:'Cairo',sans-serif;color:var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(255,122,162,.20), transparent 28%),
+        radial-gradient(circle at top right, rgba(108,199,255,.18), transparent 24%),
+        linear-gradient(180deg,var(--bg1),var(--bg2));
+      min-height:100vh;overflow-x:hidden
+    }
+    .page{max-width:1200px;margin:0 auto;padding:28px 18px 40px}
+
+    /* ===== BACK BUTTON ===== */
+    .back-btn{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:10px 18px;border:none;border-radius:999px;
+      background:rgba(255,255,255,.7);backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,.8);font-family:'Cairo',sans-serif;
+      font-weight:700;font-size:.9rem;cursor:pointer;color:var(--ink);
+      box-shadow:0 4px 16px rgba(35,55,90,.06);margin-bottom:16px;
+      text-decoration:none;transition:all .25s ease
+    }
+    .back-btn:hover{transform:translateX(-4px);background:rgba(255,255,255,.9)}
+    [dir="ltr"] .back-btn:hover{transform:translateX(4px)}
+
+    /* ===== HERO ===== */
+    .hero{
+      position:relative;
+      background:rgba(255,255,255,.78);backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,.8);box-shadow:var(--shadow);
+      border-radius:34px;padding:28px;overflow:hidden
+    }
+    .hero-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:20px;align-items:center;position:relative;z-index:1}
+    .welcome{font-size:clamp(2rem,5vw,3.2rem);line-height:1.05;margin:0 0 10px;font-weight:800}
+    .subtitle{margin:0;color:var(--muted);font-size:1.05rem;max-width:650px;line-height:1.6}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+    .btn{
+      border:none;border-radius:18px;padding:14px 20px;font-weight:800;cursor:pointer;
+      box-shadow:0 10px 18px rgba(0,0,0,.08);transition:.22s ease;font-family:inherit;
+      font-size:.95rem
+    }
+    .btn:hover{transform:translateY(-2px) scale(1.01)}
+    .btn.primary{background:linear-gradient(135deg,var(--a1),#ff9f68);color:#fff}
+    .btn.secondary{background:#fff;color:var(--ink);border:1px solid rgba(32,48,71,.10)}
+
+    .robot{
+      background:linear-gradient(180deg,#fff,#f7fbff);border-radius:28px;padding:18px;
+      border:1px solid rgba(32,48,71,.08);box-shadow:0 10px 26px rgba(0,0,0,.06);text-align:center
+    }
+    .robot-emoji{font-size:4.8rem;line-height:1;margin-bottom:8px;animation:bounce 3s ease infinite}
+    @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    .robot p{margin:0;color:var(--muted);font-weight:700}
+
+    /* ===== PROGRESS ===== */
+    .progress{
+      margin-top:18px;background:#fff;border-radius:24px;padding:18px;
+      border:1px solid rgba(32,48,71,.08);box-shadow:var(--shadow)
+    }
+    .progress-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+    .progress-head h2{margin:0;font-size:1.2rem}
+    .progress-bar{height:16px;background:#eef3fb;border-radius:999px;overflow:hidden}
+    .progress-bar span{display:block;height:100%;width:18%;border-radius:999px;background:linear-gradient(90deg,var(--a3),var(--a2),var(--a1));transition:width .6s ease}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+    .stat{background:#f8fbff;border-radius:20px;padding:14px 12px;text-align:center;border:1px solid rgba(32,48,71,.06)}
+    .stat strong{display:block;font-size:1.2rem;background:linear-gradient(135deg,var(--a1),var(--a5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .stat span{color:var(--muted);font-size:.9rem}
+
+    /* ===== SECTION TITLE ===== */
+    .section-title{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:30px 4px 14px}
+    .section-title h2{margin:0;font-size:1.5rem}
+    .section-title p{margin:0;color:var(--muted)}
+
+    /* ===== PARTS (Units) ===== */
+    .units{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .unit{
+      position:relative;overflow:hidden;background:var(--card);border-radius:var(--radius);padding:22px;
+      box-shadow:var(--shadow);border:1px solid rgba(32,48,71,.06);min-height:210px;transition:.25s ease;
+      cursor:pointer;text-decoration:none;color:var(--ink);display:block
+    }
+    .unit:hover{transform:translateY(-4px);box-shadow:0 20px 50px rgba(35,55,90,.14)}
+    .unit .badge{display:inline-flex;align-items:center;gap:8px;background:rgba(32,48,71,.06);padding:8px 12px;border-radius:999px;font-weight:800;font-size:.85rem}
+    .unit h3{margin:16px 0 8px;font-size:1.6rem;line-height:1.1}
+    .unit p{margin:0;color:var(--muted);font-weight:600;font-size:.9rem}
+    .unit .cta{margin-top:18px;display:inline-flex;align-items:center;gap:10px;border:none;border-radius:16px;padding:12px 16px;color:#fff;font-weight:800;cursor:pointer;font-family:inherit;font-size:.9rem}
+    .u1{background:linear-gradient(135deg,#fff,#fff6f8)} .u1 .cta{background:linear-gradient(135deg,#ff7aa2,#ff9f68)}
+    .u2{background:linear-gradient(135deg,#fff,#f2fbff)} .u2 .cta{background:linear-gradient(135deg,#53baff,#6dd5ed)}
+    .u3{background:linear-gradient(135deg,#fff,#f5fff4)} .u3 .cta{background:linear-gradient(135deg,#7ed957,#3fd18a)}
+    .u4{background:linear-gradient(135deg,#fff,#f8f4ff)} .u4 .cta{background:linear-gradient(135deg,#9d7cff,#6c8cff)}
+    .u5{background:linear-gradient(135deg,#fff,#fffaf2)} .u5 .cta{background:linear-gradient(135deg,#ffb347,#ff8a5b)}
+    .u6{background:linear-gradient(135deg,#fff,#f1fffd)} .u6 .cta{background:linear-gradient(135deg,#26c6da,#59d6c7)}
+    .unit .icon{position:absolute;right:18px;top:18px;font-size:2.2rem;opacity:.95}
+    [dir="ltr"] .unit .icon{right:auto;left:18px}
+    .pill{margin-top:16px;display:inline-block;background:rgba(32,48,71,.06);padding:7px 11px;border-radius:999px;font-size:.82rem;font-weight:700}
+
+    /* ===== MISSION ===== */
+    .mission{
+      margin-top:18px;background:linear-gradient(135deg,#1f2f4a,#2f5b8f);color:#fff;border-radius:28px;padding:22px;
+      box-shadow:var(--shadow);display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center
+    }
+    .mission h2,.mission p{margin:0}
+    .mission p{opacity:.88;font-size:.95rem}
+    .mission .btn{box-shadow:none}
+
+    /* ===== PART DETAIL VIEW (Hidden by default) ===== */
+    .part-view{display:none;animation:fadeUp .4s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .part-view.active{display:block}
+
+    .part-card{
+      background:rgba(255,255,255,.78);backdrop-filter:blur(14px);
+      border:1px solid rgba(255,255,255,.8);box-shadow:var(--shadow);
+      border-radius:var(--radius);padding:32px 24px;margin-bottom:20px
+    }
+    .part-card .part-title{
+      font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;margin-bottom:8px
+    }
+    .part-card .part-desc{color:var(--muted);font-size:1rem;margin-bottom:24px;line-height:1.6}
+
+    /* ===== INTERACTIVE ELEMENTS ===== */
+    .play-btn{
+      display:inline-flex;align-items:center;gap:10px;
+      padding:16px 28px;border:none;border-radius:20px;
+      background:linear-gradient(135deg,var(--a2),var(--a6));
+      color:#fff;font-family:'Cairo',sans-serif;font-size:1.1rem;
+      font-weight:800;cursor:pointer;box-shadow:0 10px 30px rgba(108,199,255,.3);
+      transition:all .3s ease;margin:8px
+    }
+    .play-btn:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(108,199,255,.4)}
+    .play-btn:active{transform:scale(.97)}
+
+    .speak-btn{
+      display:inline-flex;align-items:center;gap:10px;
+      padding:16px 28px;border:2px solid var(--a1);border-radius:20px;
+      background:rgba(255,122,162,.08);color:var(--a1);
+      font-family:'Cairo',sans-serif;font-size:1.1rem;
+      font-weight:800;cursor:pointer;transition:all .3s ease;margin:8px
+    }
+    .speak-btn:hover{background:rgba(255,122,162,.15)}
+    .speak-btn:active{transform:scale(.97)}
+
+    .word-card{
+      display:inline-flex;flex-direction:column;align-items:center;gap:8px;
+      padding:20px;border-radius:20px;background:rgba(255,255,255,.6);
+      border:2px solid rgba(32,48,71,.06);cursor:pointer;transition:all .25s ease;
+      min-width:120px;margin:8px
+    }
+    .word-card:hover{border-color:var(--a2);transform:translateY(-3px);box-shadow:0 8px 24px rgba(35,55,90,.1)}
+    .word-card .word-emoji{font-size:2.8rem}
+    .word-card .word-en{font-size:1.3rem;font-weight:800;color:var(--ink)}
+    .word-card .word-ar{font-size:.9rem;color:var(--muted);font-weight:600}
+
+    /* ===== DIALOGUE SECTION ===== */
+    .dialogue-box{
+      background:rgba(255,255,255,.5);border-radius:20px;padding:20px;
+      border:1px solid rgba(32,48,71,.06);margin:16px 0
+    }
+    .dialogue-line{
+      display:flex;align-items:flex-start;gap:12px;margin:12px 0;
+      padding:12px 16px;border-radius:16px;transition:all .25s ease
+    }
+    .dialogue-line.robot-line{
+      background:rgba(108,199,255,.08);justify-content:flex-start
+    }
+    .dialogue-line.student-line{
+      background:rgba(255,122,162,.08);justify-content:flex-end
+    }
+    .dialogue-speaker{
+      font-weight:800;font-size:.85rem;padding:4px 10px;border-radius:999px;
+      flex-shrink:0
+    }
+    .robot-line .dialogue-speaker{background:rgba(108,199,255,.2);color:var(--a2)}
+    .student-line .dialogue-speaker{background:rgba(255,122,162,.2);color:var(--a1)}
+    .dialogue-text{font-size:1.1rem;font-weight:700}
+
+    /* ===== QUIZ SECTION ===== */
+    .quiz-option{
+      display:flex;align-items:center;gap:12px;padding:16px 20px;
+      border:2px solid rgba(32,48,71,.06);border-radius:16px;
+      margin:10px 0;cursor:pointer;transition:all .25s ease;
+      background:rgba(255,255,255,.6);font-family:'Cairo',sans-serif;
+      font-size:1rem;font-weight:700;color:var(--ink)
+    }
+    .quiz-option:hover{border-color:var(--a2);background:rgba(108,199,255,.08)}
+    .quiz-option.correct{border-color:var(--a3);background:rgba(126,217,87,.12)}
+    .quiz-option.wrong{border-color:var(--error);background:rgba(255,107,107,.08);opacity:.7}
+    .quiz-option input[type="radio"]{display:none}
+
+    /* ===== SPEECH BUBBLE ===== */
+    .speech-bubble{
+      position:relative;background:#fff;border-radius:20px;padding:16px 20px;
+      box-shadow:0 4px 16px rgba(35,55,90,.06);margin:12px 0;
+      font-size:1.1rem;font-weight:700;border:1px solid rgba(32,48,71,.06)
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media(max-width:960px){
+      .hero-grid,.mission{grid-template-columns:1fr}
+      .units{grid-template-columns:repeat(2,1fr)}
+      .stats{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:640px){
+      .page{padding:14px}
+      .hero{padding:20px}
+      .units{grid-template-columns:1fr}
+      .stats{grid-template-columns:1fr 1fr}
+      .welcome{font-size:2rem}
+      .unit{min-height:180px}
+      .word-card{min-width:90px;padding:14px}
+      .word-card .word-emoji{font-size:2.2rem}
+    }
+
+    /* ===== LANGUAGE TOGGLE ===== */
+    .lang-toggle{
+      position:fixed;top:16px;left:16px;z-index:100;
+      background:rgba(255,255,255,.7);backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,.8);border-radius:999px;
+      padding:8px 16px;font-family:'Cairo',sans-serif;
+      font-weight:800;font-size:.9rem;cursor:pointer;
+      box-shadow:var(--shadow);color:var(--ink);
+      transition:all .3s ease;display:flex;align-items:center;gap:6px
+    }
+    .lang-toggle:hover{transform:scale(1.05)}
+
+    /* ===== STEP INDICATOR ===== */
+    .step-nav{
+      display:flex;justify-content:center;gap:8px;margin:20px 0;
+      flex-wrap:wrap
+    }
+    .step-dot{
+      width:12px;height:12px;border-radius:50%;
+      background:rgba(32,48,71,.15);transition:all .3s ease;cursor:pointer
+    }
+    .step-dot.active{background:var(--a1);width:28px;border-radius:999px}
+    .step-dot.completed{background:var(--a3)}
+  </style>
+</head>
+<body>
+
+  <!-- Language Toggle -->
+  <button class="lang-toggle" onclick="toggleLanguage()">
+    <span>🌐</span>
+    <span id="langLabel">English</span>
+  </button>
+
+  <main class="page">
+
+    <!-- Back Button -->
+    <a href="student_dashboard.html" class="back-btn" data-ar="↩ العودة للوحة التحكم" data-en="↩ Back to Dashboard">↩ العودة للوحة التحكم</a>
+
+    <!-- ==================== OVERVIEW VIEW ==================== -->
+    <div id="overviewView">
+
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-grid">
+          <div>
+            <h1 class="welcome" data-ar="Welcome to Unit 1! 👋" data-en="Welcome to Unit 1! 👋">Welcome to Unit 1! 👋</h1>
+            <p class="subtitle" data-ar="Let's learn how to say hello, introduce ourselves, and say goodbye with your Robot Friend." data-en="Let's learn how to say hello, introduce ourselves, and say goodbye with your Robot Friend.">Let's learn how to say hello, introduce ourselves, and say goodbye with your Robot Friend.</p>
+            <div class="actions">
+              <button class="btn primary" onclick="startPart(1)" data-ar="Start Lesson 🚀" data-en="Start Lesson 🚀">Start Lesson 🚀</button>
+              <button class="btn secondary" data-ar="Today's Mission ✨" data-en="Today's Mission ✨">Today's Mission ✨</button>
+            </div>
+          </div>
+          <div class="robot">
+            <div class="robot-emoji">🤖</div>
+            <p>Robot Friend</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Progress -->
+      <section class="progress">
+        <div class="progress-head">
+          <h2 data-ar="My Progress" data-en="My Progress">My Progress</h2>
+          <strong>18% Completed</strong>
+        </div>
+        <div class="progress-bar"><span style="width:18%"></span></div>
+        <div class="stats">
+          <div class="stat"><strong>3</strong><span data-ar="نجوم" data-en="Stars">Stars</span></div>
+          <div class="stat"><strong>1</strong><span data-ar="وحدة" data-en="Unit Done">Unit Done</span></div>
+          <div class="stat"><strong>0</strong><span data-ar="شارات" data-en="Badges">Badges</span></div>
+          <div class="stat"><strong>1</strong><span data-ar="يوم" data-en="Day Streak">Day Streak</span></div>
+        </div>
+      </section>
+
+      <!-- Section Title -->
+      <div class="section-title">
+        <div>
+          <h2 data-ar="Learning Parts" data-en="Learning Parts">Learning Parts</h2>
+          <p data-ar="Move in order and keep the story clear." data-en="Move in order and keep the story clear.">Move in order and keep the story clear.</p>
+        </div>
+      </div>
+
+      <!-- 6 Parts -->
+      <section class="units">
+        <div class="unit u1" onclick="startPart(1)">
+          <div class="icon">👋</div>
+          <div class="badge">PART 1</div>
+          <h3>HELLO!</h3>
+          <p data-ar="Say hello to your friend." data-en="Say hello to your friend.">Say hello to your friend.</p>
+          <span class="pill" data-ar="مفتوح" data-en="Open">مفتوح</span><br>
+          <button class="cta">PLAY 👋</button>
+        </div>
+
+        <div class="unit u2" onclick="startPart(2)">
+          <div class="icon">🙂</div>
+          <div class="badge">PART 2</div>
+          <h3>HOW ARE YOU?</h3>
+          <p data-ar="Ask and answer politely." data-en="Ask and answer politely.">Ask and answer politely.</p>
+          <span class="pill" data-ar="مفتوح" data-en="Open">مفتوح</span><br>
+          <button class="cta">TRY 🙂</button>
+        </div>
+
+        <div class="unit u3" onclick="startPart(3)">
+          <div class="icon">🙋</div>
+          <div class="badge">PART 3</div>
+          <h3>MY NAME IS...</h3>
+          <p data-ar="Introduce yourself with confidence." data-en="Introduce yourself with confidence.">Introduce yourself with confidence.</p>
+          <span class="pill" data-ar="مفتوح" data-en="Open">مفتوح</span><br>
+          <button class="cta">SAY 🙋</button>
+        </div>
+
+        <div class="unit u4" onclick="startPart(4)">
+          <div class="icon">👥</div>
+          <div class="badge">PART 4</div>
+          <h3>LET'S TALK</h3>
+          <p data-ar="Practice the short dialogue." data-en="Practice the short dialogue.">Practice the short dialogue.</p>
+          <span class="pill" data-ar="مفتوح" data-en="Open">مفتوح</span><br>
+          <button class="cta">CHAT 💬</button>
+        </div>
+
+        <div class="unit u5" onclick="startPart(5)">
+          <div class="icon">👋</div>
+          <div class="badge">PART 5</div>
+          <h3>GOODBYE!</h3>
+          <p data-ar="Finish the conversation nicely." data-en="Finish the conversation nicely.">Finish the conversation nicely.</p>
+          <span class="pill" data-ar="مفتوح" data-en="Open">مفتوح</span><br>
+          <button class="cta">END 👋</button>
+        </div>
+
+        <div class="unit u6" onclick="startPart(6)">
+          <div class="icon">⭐</div>
+          <div class="badge">PART 6</div>
+          <h3>REVIEW</h3>
+          <p data-ar="Repeat the words and earn stars." data-en="Repeat the words and earn stars.">Repeat the words and earn stars.</p>
+          <span class="pill" data-ar="مفتوح" data-en="Open">مفتوح</span><br>
+          <button class="cta">REPEAT ⭐</button>
+        </div>
+      </section>
+
+      <!-- Mission -->
+      <section class="mission">
+        <div>
+          <h2 data-ar="Today's Mission" data-en="Today's Mission">Today's Mission</h2>
+          <p data-ar="Say hello, introduce yourself, and say goodbye with the robot." data-en="Say hello, introduce yourself, and say goodbye with the robot.">Say hello, introduce yourself, and say goodbye with the robot.</p>
+        </div>
+        <button class="btn primary" data-ar="Play Mission ✨" data-en="Play Mission ✨">Play Mission ✨</button>
+      </section>
+    </div>
+
+    <!-- ==================== PART VIEWS ==================== -->
+
+    <!-- PART 1: HELLO -->
+    <div id="part1" class="part-view">
+      <div class="part-card">
+        <div class="step-nav">
+          <span class="step-dot active"></span><span class="step-dot"></span><span class="step-dot"></span>
+          <span class="step-dot"></span><span class="step-dot"></span><span class="step-dot"></span>
+        </div>
+        <h2 class="part-title">👋 PART 1: HELLO!</h2>
+        <p class="part-desc" data-ar="تعلم كيف تقول مرحباً بالإنجليزية. اضغط على الكلمات لسماع النطق!" data-en="Learn how to say hello in English. Tap the words to hear pronunciation!">تعلم كيف تقول مرحباً بالإنجليزية. اضغط على الكلمات لسماع النطق!</p>
+
+        <div style="text-align:center">
+          <div class="word-card" onclick="speakText('Hello')">
+            <span class="word-emoji">👋</span>
+            <span class="word-en">Hello</span>
+            <span class="word-ar">مرحباً</span>
+          </div>
+          <div class="word-card" onclick="speakText('Hi')">
+            <span class="word-emoji">😊</span>
+            <span class="word-en">Hi</span>
+            <span class="word-ar">أهلاً</span>
+          </div>
+          <div class="word-card" onclick="speakText('Hey')">
+            <span class="word-emoji">🤗</span>
+            <span class="word-en">Hey</span>
+            <span class="word-ar">يا هلا</span>
+          </div>
+          <div class="word-card" onclick="speakText('Good morning')">
+            <span class="word-emoji">🌅</span>
+            <span class="word-en">Good morning</span>
+            <span class="word-ar">صباح الخير</span>
+          </div>
+        </div>
+
+        <div class="speech-bubble">
+          🤖 <span id="robotSpeech">Try tapping the words above to hear me speak!</span>
+        </div>
+
+        <div style="text-align:center;margin-top:20px">
+          <button class="play-btn" onclick="speakText('Hello! Welcome to English Learning Hub!')">🔊 Listen to Robot</button>
+          <button class="speak-btn" onclick="practiceSpeaking()">🎤 You Try!</button>
+        </div>
+
+        <div style="text-align:center;margin-top:20px">
+          <button class="btn secondary" onclick="showOverview()">↩ Back</button>
+          <button class="btn primary" onclick="startPart(2)">Next Part →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 2: HOW ARE YOU? -->
+    <div id="part2" class="part-view">
+      <div class="part-card">
+        <div class="step-nav">
+          <span class="step-dot completed"></span><span class="step-dot active"></span><span class="step-dot"></span>
+          <span class="step-dot"></span><span class="step-dot"></span><span class="step-dot"></span>
+        </div>
+        <h2 class="part-title">🙂 PART 2: HOW ARE YOU?</h2>
+        <p class="part-desc" data-ar="تعلم كيف تسأل وتجيب عن حالتك بالإنجليزية." data-en="Learn how to ask and answer about how you feel.">تعلم كيف تسأل وتجيب عن حالتك بالإنجليزية.</p>
+
+        <div class="dialogue-box">
+          <div class="dialogue-line robot-line">
+            <span class="dialogue-speaker">🤖 Robot</span>
+            <span class="dialogue-text">Hello! How are you?</span>
+          </div>
+          <div class="dialogue-line student-line">
+            <span class="dialogue-text">I am fine, thank you!</span>
+            <span class="dialogue-speaker">You 👤</span>
+          </div>
+          <div class="dialogue-line robot-line">
+            <span class="dialogue-speaker">🤖 Robot</span>
+            <span class="dialogue-text">Great! I am happy too!</span>
+          </div>
+        </div>
+
+        <div style="text-align:center">
+          <div class="word-card" onclick="speakText('How are you?')">
+            <span class="word-emoji">❓</span>
+            <span class="word-en">How are you?</span>
+            <span class="word-ar">كيف حالك؟</span>
+          </div>
+          <div class="word-card" onclick="speakText('I am fine, thank you')">
+            <span class="word-emoji">😊</span>
+            <span class="word-en">I am fine</span>
+            <span class="word-ar">أنا بخير</span>
+          </div>
+          <div class="word-card" onclick="speakText('I am great')">
+            <span class="word-emoji">🌟</span>
+            <span class="word-en">I am great</span>
+            <span class="word-ar">أنا ممتاز</span>
+          </div>
+          <div class="word-card" onclick="speakText('I am tired')">
+            <span class="word-emoji">😴</span>
+            <span class="word-en">I am tired</span>
+            <span class="word-ar">أنا متعب</span>
+          </div>
+        </div>
+
+        <div style="text-align:center;margin-top:20px">
+          <button class="play-btn" onclick="playDialogue()">▶️ Play Dialogue</button>
+          <button class="speak-btn" onclick="practiceSpeaking()">🎤 Practice</button>
+        </div>
+
+        <div style="text-align:center;margin-top:20px">
+          <button class="btn secondary" onclick="showOverview()">↩ Back</button>
+          <button class="btn primary" onclick="startPart(3)">Next Part →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 3: MY NAME IS -->
+    <div id="part3" class="part-view">
+      <div class="part-card">
+        <div class="step-nav">
+          <span class="step-dot completed"></span><span class="step-dot completed"></span><span class="step-dot active"></span>
+          <span class="step-dot"></span><span class="step-dot"></span><span class="step-dot"></span>
+        </div>
+        <h2 class="part-title">🙋 PART 3: MY NAME IS...</h2>
+        <p class="part-desc" data-ar="تعلم كيف تعرف بنفسك بالإنجليزية بثقة!" data-en="Learn how to introduce yourself in English with confidence!">تعلم كيف تعرف بنفسك بالإنجليزية بثقة!</p>
+
+        <div class="speech-bubble">
+          🤖 <strong>Hello! What is your name?</strong><br><br>
+          <em>Now it's your turn! Say:</em><br>
+          <strong style="color:var(--a1)">"My name is [your name]."</strong>
+        </div>
+
+        <div style="text-align:center;margin-top:20px">
+          <div class="word-card" onclick="speakText('My name is')">
+            <span class="word-emoji">📝</span>
+            <span class="word-en">My name is</span>
+            <span class="word-ar">اسمي</span>
+          </div>
+          <div class="word-card" onclick="speakText('Nice to meet you')">
+            <span class="word-emoji">🤝</span>
+            <span class="word-en">Nice to meet you</span>
+            <span class="word-ar">تشرفت بمعرفتك</span>
+          </div>
+          <div class="word-card" onclick="speakText('I am a student')">
+            <span class="word-emoji">🎒</span>
+            <span class="word-en">I am a student</span>
+            <span class="word-ar">أنا طالب</span>
+          </div>
+          <div class="word-card" onclick="speakText('I am [age] years old')">
+            <span class="word-emoji">🎂</span>
+            <span class="word-en">I am ___ years old</span>
+            <span class="word-ar">عمري ___ سنة</span>
+          </div>
+        </div>
+
+        <div style="text-align:center;margin-top:20px">
+          <button class="speak-btn" onclick="practiceSelfIntro()">🎤 Introduce Yourself!</button>
+        </div>
+
+        <div style="text-align:center;margin-top:20px">
+          <button class="btn secondary" onclick="showOverview()">↩ Back</button>
+          <button class="btn primary" onclick="startPart(4)">Next Part →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 4: LET'S TALK -->
+    <div id="part4" class="part-view">
+      <div class="part-card">
+        <div class="step-nav">
+          <span class="step-dot completed"></span><span class="step-dot completed"></span><span class="step-dot completed"></span><span class="step-dot active"></span>
+          <span class="step-dot"></span><span class="step-dot"></span>
+        </div>
+        <h2 class="part-title">👥 PART 4: LET'S TALK</h2>
+        <p class="part-desc" data-ar="تدرب على محادثة كاملة مع الروبوت!" data-en="Practice a full conversation with the robot!">تدرب على محادثة كاملة مع الروبوت!</p>
+
+        <div class="dialogue-box" id="fullDialogue">
+          <div class="dialogue-line robot-line">
+            <span class="dialogue-speaker">🤖 Robot</span>
+            <span class="dialogue-text">Hello! How are you?</span>
+          </div>
+          <div class="dialogue-line student-line">
+            <span class="dialogue-text">Hi! I am fine, thank you.</span>
+            <span class="dialogue-speaker">You 👤</span>
+          </div>
+          <div class="dialogue-line robot-line">
+            <span class="dialogue-speaker">🤖 Robot</span>
+            <span class="dialogue-text">What is your name?</span>
+          </div>
+          <div class="dialogue-line student-line">
+            <span class="dialogue-text">My name is Ahmed.</span>
+            <span class="dialogue-speaker">You 👤</span>
+          </div>
+          <div class="dialogue-line robot-line">
+            <span class="dialogue-speaker">🤖 Robot</span>
+            <span class="dialogue-text">Nice to meet you, Ahmed!</span>
+          </div>
+          <div class="dialogue-line student-line">
+            <span class="dialogue-text">Nice to meet you too!</span>
+            <span class="dialogue-speaker">You 👤</span>
+          </div>
+        </div>
+
+        <div style="text-align:center;margin-top:20px">
+          <button class="play-btn" onclick="playFullDialogue()">▶️ Play Full Conversation</button>
+        </div>
+
+        <div style="text-align:center;margin-top:20px">
+          <button class="btn secondary" onclick="showOverview()">↩ Back</button>
+          <button class="btn primary" onclick="startPart(5)">Next Part →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 5: GOODBYE -->
+    <div id="part5" class="part-view">
+      <div class="part-card">
+        <div class="step-nav">
+          <span class="step-dot completed"></span><span class="step-dot completed"></span><span class="step-dot completed"></span><span class="step-dot completed"></span><span class="step-dot active"></span>
+          <span class="step-dot"></span>
+        </div>
+        <h2 class="part-title">👋 PART 5: GOODBYE!</h2>
+        <p class="part-desc" data-ar="تعلم كيف تنهي المحادثة بأدب." data-en="Learn how to end a conversation politely.">تعلم كيف تنهي المحادثة بأدب.</p>
+
+        <div style="text-align:center">
+          <div class="word-card" onclick="speakText('Goodbye')">
+            <span class="word-emoji">👋</span>
+            <span class="word-en">Goodbye</span>
+            <span class="word-ar">مع السلامة</span>
+          </div>
+          <div class="word-card" onclick="speakText('Bye bye')">
+            <span class="word-emoji">😘</span>
+            <span class="word-en">Bye bye</span>
+            <span class="word-ar">باي باي</span>
+          </div>
+          <div class="word-card" onclick="speakText('See you later')">
+            <span class="word-emoji">👀</span>
+            <span class="word-en">See you later</span>
+            <span class="word-ar">أراك لاحقاً</span>
+          </div>
+          <div class="word-card" onclick="speakText('Good night')">
+            <span class="word-emoji">🌙</span>
+            <span class="word-en">Good night</span>
+            <span class="word-ar">تصبح على خير</span>
+          </div>
+          <div class="word-card" onclick="speakText('Take care')">
+            <span class="word-emoji">💚</span>
+            <span class="word-en">Take care</span>
+            <span class="word-ar">اعتني بنفسك</span>
+          </div>
+        </div>
+
+        <div class="speech-bubble" style="margin-top:20px">
+          🤖 <strong>Goodbye! See you tomorrow!</strong>
+        </div>
+
+        <div style="text-align:center;margin-top:20px">
+          <button class="play-btn" onclick="speakText('Goodbye! See you tomorrow! Have a great day!')">🔊 Listen</button>
+        </div>
+
+        <div style="text-align:center;margin-top:20px">
+          <button class="btn secondary" onclick="showOverview()">↩ Back</button>
+          <button class="btn primary" onclick="startPart(6)">Next Part →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 6: REVIEW -->
+    <div id="part6" class="part-view">
+      <div class="part-card">
+        <div class="step-nav">
+          <span class="step-dot completed"></span><span class="step-dot completed"></span><span class="step-dot completed"></span>
+          <span class="step-dot completed"></span><span class="step-dot completed"></span><span class="step-dot active"></span>
+        </div>
+        <h2 class="part-title">⭐ PART 6: REVIEW</h2>
+        <p class="part-desc" data-ar="اختبر نفسك واكسب نجوم! كل إجابة صحيحة = نجمة" data-en="Test yourself and earn stars! Every correct answer = a star ⭐">اختبر نفسك واكسب نجوم! كل إجابة صحيحة = نجمة</p>
+
+        <div id="reviewQuiz">
+          <!-- Question 1 -->
+          <div class="quiz-question" data-correct="1" style="margin-bottom:24px">
+            <h3 style="font-size:1.1rem;margin-bottom:12px">Q1: What does "Hello" mean?</h3>
+            <div class="quiz-option" onclick="selectQuiz(this, 0)">مرحباً</div>
+            <div class="quiz-option" onclick="selectQuiz(this, 1)">وداعاً</div>
+            <div class="quiz-option" onclick="selectQuiz(this, 2)">شكراً</div>
+            <div class="quiz-option" onclick="selectQuiz(this, 3)">عفواً</div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="quiz-question" data-correct="2" style="margin-bottom:24px">
+            <h3 style="font-size:1.1rem;margin-bottom:12px">Q2: How do you say "كيف حالك؟"</h3>
+            <div class="quiz-option" onclick="selectQuiz(this, 0)">Hello</div>
+            <div class="quiz-option" onclick="selectQuiz(this, 1)">My name is</div>
+            <div class="quiz-option" onclick="selectQuiz(this, 2)">How are you?</div>
+            <div class="quiz-option" onclick="selectQuiz(this, 3)">Goodbye</div>
+          </div>
+
+          <!-- Question 3 -->
+          <div class="quiz-question" data-correct="0" style="margin-bottom:24px">
+            <h3 style="font-size:1.1rem;margin-bottom:12px">Q3: "My name is Ahmed" means...</h3>
+            <div class="quiz-option" onclick="selectQuiz(this, 0)">اسمي أحمد</div>
+            <div class="quiz-option" onclick="selectQuiz(this, 1)">أنا بخير</div>
+            <div class="quiz-option" onclick="selectQuiz(this, 2)">أنا طالب</div>
+            <div class="quiz-option" onclick="selectQuiz(this, 3)">أنا سعيد</div>
+          </div>
+
+          <!-- Question 4 -->
+          <div class="quiz-question" data-correct="1" style="margin-bottom:24px">
+            <h3 style="font-size:1.1rem;margin-bottom:12px">Q4: The opposite of "Hello" is...</h3>
+            <div class="quiz-option" onclick="selectQuiz(this, 0)">Hi</div>
+            <div class="quiz-option" onclick="selectQuiz(this, 1)">Goodbye</div>
+            <div class="quiz-option" onclick="selectQuiz(this, 2)">Hey</div>
+            <div class="quiz-option" onclick="selectQuiz(this, 3)">Good morning</div>
+          </div>
+
+          <div id="quizResult" style="text-align:center;margin-top:16px;display:none"></div>
+        </div>
+
+        <div style="text-align:center;margin-top:20px">
+          <button class="btn primary" onclick="checkAllAnswers()">📝 Check Answers</button>
+        </div>
+
+        <div style="text-align:center;margin-top:16px">
+          <button class="btn secondary" onclick="showOverview()">↩ Back to Unit</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+<script>
+// ======================================================================
+// SUPABASE CONFIG
+// ======================================================================
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const supabase = window.supabase ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+// ======================================================================
+// NAVIGATION
+// ======================================================================
+function showOverview() {
+  document.getElementById('overviewView').style.display = 'block';
+  document.querySelectorAll('.part-view').forEach(el => el.style.display = 'none');
+  window.scrollTo(0, 0);
+}
+
+function startPart(partNum) {
+  document.getElementById('overviewView').style.display = 'none';
+  document.querySelectorAll('.part-view').forEach(el => el.style.display = 'none');
+  document.getElementById(`part${partNum}`).style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+// ======================================================================
+// TEXT-TO-SPEECH (Web Speech API)
+// ======================================================================
+function speakText(text) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.85; // Slightly slower for kids
+    utterance.pitch = 1.1; // Slightly higher, friendlier
+    window.speechSynthesis.speak(utterance);
+
+    // Show in robot bubble
+    const bubble = document.getElementById('robotSpeech');
+    if (bubble) bubble.textContent = text;
+  } else {
+    alert('Text-to-Speech is not supported in this browser. Try Chrome or Safari!');
+  }
+}
+
+function playDialogue() {
+  const lines = ['Hello! How are you?', 'I am fine, thank you!', 'Great! I am happy too!'];
+  let delay = 0;
+  lines.forEach((line, i) => {
+    setTimeout(() => {
+      const utt = new SpeechSynthesisUtterance(line);
+      utt.lang = 'en-US';
+      utt.rate = 0.8;
+      utt.pitch = i % 2 === 0 ? 1.1 : 0.95;
+      window.speechSynthesis.speak(utt);
+      // Highlight line
+      const allLines = document.querySelectorAll('.dialogue-line');
+      if (allLines[i]) {
+        allLines[i].style.border = '2px solid var(--a2)';
+        allLines[i].style.background = i % 2 === 0 ? 'rgba(108,199,255,.15)' : 'rgba(255,122,162,.15)';
+      }
+    }, delay);
+    delay += 2500;
+  });
+}
+
+function playFullDialogue() {
+  const lines = [
+    'Hello! How are you?',
+    'Hi! I am fine, thank you.',
+    'What is your name?',
+    'My name is Ahmed.',
+    'Nice to meet you, Ahmed!',
+    'Nice to meet you too!'
+  ];
+  let delay = 0;
+  lines.forEach((line, i) => {
+    setTimeout(() => {
+      const utt = new SpeechSynthesisUtterance(line);
+      utt.lang = 'en-US';
+      utt.rate = 0.8;
+      utt.pitch = i % 2 === 0 ? 1.1 : 0.95;
+      window.speechSynthesis.speak(utt);
+      const allLines = document.querySelectorAll('#fullDialogue .dialogue-line');
+      if (allLines[i]) {
+        allLines[i].style.border = '2px solid var(--a2)';
+        allLines[i].style.background = i % 2 === 0 ? 'rgba(108,199,255,.15)' : 'rgba(255,122,162,.15)';
+      }
+    }, delay);
+    delay += 3000;
+  });
+}
+
+function practiceSpeaking() {
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new Recognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      alert(`You said: "${transcript}"\n\nGreat try! Keep practicing! 🎉`);
+    };
+    recognition.onerror = () => {
+      alert('Could not hear you. Please try again or tap the words above!');
+    };
+    recognition.start();
+
+    const bubble = document.getElementById('robotSpeech');
+    if (bubble) bubble.textContent = "I'm listening... 🎤";
+  } else {
+    alert('Speech recognition is not available. Try Chrome browser!');
+  }
+}
+
+function practiceSelfIntro() {
+  practiceSpeaking();
+}
+
+// ======================================================================
+// REVIEW QUIZ
+// ======================================================================
+function selectQuiz(option, index) {
+  const question = option.closest('.quiz-question');
+  const correct = parseInt(question.dataset.correct);
+
+  // Reset siblings
+  question.querySelectorAll('.quiz-option').forEach(opt => {
+    opt.classList.remove('correct', 'wrong');
+    opt.style.pointerEvents = 'none';
+  });
+
+  const options = question.querySelectorAll('.quiz-option');
+  if (index === correct) {
+    option.classList.add('correct');
+  } else {
+    option.classList.add('wrong');
+    options[correct].classList.add('correct');
+  }
+}
+
+function checkAllAnswers() {
+  const questions = document.querySelectorAll('.quiz-question');
+  let score = 0;
+  let allAnswered = true;
+
+  questions.forEach(q => {
+    const answered = q.querySelector('.correct, .wrong');
+    if (!answered) {
+      allAnswered = false;
+      return;
+    }
+    if (q.querySelector('.correct')) score++;
+  });
+
+  const result = document.getElementById('quizResult');
+  result.style.display = 'block';
+
+  if (!allAnswered) {
+    result.innerHTML = `<div class="feedback wrong">⚠️ Please answer all questions first!</div>`;
+    return;
+  }
+
+  if (score === 4) {
+    result.innerHTML = `<div class="feedback correct" style="font-size:1.2rem">
+      🎉 PERFECT! ${score}/4 ⭐⭐⭐⭐<br>
+      <small>You earned 4 stars! Great job!</small>
+    </div>`;
+    saveProgress(4);
+  } else {
+    result.innerHTML = `<div class="feedback correct" style="font-size:1.2rem">
+      ${score === 3 ? '👏' : score === 2 ? '👍' : '💪'} ${score}/4 correct<br>
+      <small>${score >= 3 ? 'Well done!' : 'Keep practicing! You can do it!'}</small>
+    </div>`;
+    saveProgress(score);
+  }
+}
+
+function saveProgress(stars) {
+  // Save to localStorage
+  const progress = JSON.parse(localStorage.getItem('elh_progress') || '{}');
+  progress.stars = (progress.stars || 0) + stars;
+  progress.completed_units = Math.min(6, (progress.completed_units || 0) + 1);
+  localStorage.setItem('elh_progress', JSON.stringify(progress));
+}
+
+// ======================================================================
+// LANGUAGE SYSTEM
+// ======================================================================
+let currentLang = 'ar';
+
+function toggleLanguage() {
+  currentLang = currentLang === 'ar' ? 'en' : 'ar';
+  const html = document.documentElement;
+  html.lang = currentLang;
+  html.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('langLabel').textContent = currentLang === 'ar' ? 'English' : 'عربي';
+
+  document.querySelectorAll('[data-ar]').forEach(el => {
+    const text = currentLang === 'ar' ? el.getAttribute('data-ar') : el.getAttribute('data-en');
+    if (text) el.textContent = text;
+  });
+}
+
+// ======================================================================
+// SERVICE WORKER
+// ======================================================================
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .catch(err => console.log('SW:', err));
+}
+</script>
+</body>
+</html>

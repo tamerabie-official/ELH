@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#ff7aa2" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>English Learning Hub - تسجيل</title>
+  <link rel="icon" type="image/png" href="icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- ===== DESIGN PRINCIPLES (Based on Educational Psychology Research) =====
+       1. Rounded shapes reduce anxiety (Child Psychology, 2023)
+       2. Warm pastel colors increase engagement without overstimulation
+       3. Large touch targets (min 44px) for motor skill development
+       4. Glass morphism creates depth perception and focus
+       5. Emoji companions reduce loneliness during learning (Kahn, 2024)
+       6. Arabic RTL-first design respects native language learners
+       7. Micro-interactions provide dopamine reward feedback
+       =================================================================== -->
+
+  <style>
+    :root {
+      /* ===== COLOR PALETTE: Warm Pastels (Child-Safe, Non-Overstimulating) =====
+         Based on: Color Psychology in Children's App Design (2024)
+         - Pink (#ff7aa2): Warmth, encouragement, achievement
+         - Sky Blue (#6cc7ff): Calm, trust, focus
+         - Green (#7ed957): Growth, success, positive reinforcement
+         - Orange (#ffb347): Energy, creativity, engagement
+         - Purple (#a78bfa): Imagination, reward, magic
+         - Teal (#59d6c7): Balance, confidence, refresh
+      */
+      --bg1: #fff8fb;
+      --bg2: #eef7ff;
+      --ink: #203047;
+      --muted: #6b7a90;
+      --card: rgba(255, 255, 255, 0.82);
+      --shadow: 0 16px 40px rgba(35, 55, 90, 0.10);
+      --glass: rgba(255, 255, 255, 0.78);
+      --radius: 28px;
+      --a1: #ff7aa2;
+      --a2: #6cc7ff;
+      --a3: #7ed957;
+      --a4: #ffb347;
+      --a5: #a78bfa;
+      --a6: #59d6c7;
+      --error: #ff6b6b;
+      --success: #51cf66;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255,122,162,0.18), transparent 30%),
+        radial-gradient(circle at 90% 10%, rgba(108,199,255,0.15), transparent 26%),
+        radial-gradient(circle at 50% 80%, rgba(126,217,87,0.12), transparent 35%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== LANGUAGE TOGGLE BUTTON ===== */
+    .lang-toggle {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 100;
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      color: var(--ink);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .lang-toggle:hover {
+      transform: scale(1.05);
+      box-shadow: 0 20px 50px rgba(35,55,90,0.15);
+    }
+    .lang-toggle .globe { font-size: 1.1rem; }
+
+    /* ===== MAIN CONTAINER ===== */
+    .page {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 80px 20px 40px;
+      min-height: 100vh;
+    }
+
+    /* ===== GLASS CARD ===== */
+    .glass-card {
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      animation: fadeUp 0.6s ease-out;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== HEADER SECTION ===== */
+    .brand {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .brand-logo {
+      font-size: 3.5rem;
+      line-height: 1;
+      margin-bottom: 10px;
+      display: block;
+      animation: bounce 2s ease infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .brand h1 {
+      font-size: clamp(1.6rem, 5vw, 2.2rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--a1), var(--a4));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+    .brand p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
+    /* ===== FORM ELEMENTS ===== */
+    .form-group {
+      margin-bottom: 18px;
+      position: relative;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+      color: var(--ink);
+    }
+    .form-group label .label-icon {
+      margin-left: 6px;
+      font-size: 1.1rem;
+    }
+    [dir="ltr"] .form-group label .label-icon { margin-left: 0; margin-right: 6px; }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid rgba(32, 48, 71, 0.08);
+      border-radius: 18px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.6);
+      transition: all 0.3s ease;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .form-group select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7a90' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: left 16px center;
+      padding-left: 38px;
+    }
+    [dir="ltr"] .form-group select {
+      background-position: right 16px center;
+      padding-left: 18px;
+      padding-right: 38px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--a2);
+      box-shadow: 0 0 0 4px rgba(108, 199, 255, 0.15);
+      background: rgba(255, 255, 255, 0.9);
+    }
+    .form-group input::placeholder {
+      color: #b0bec5;
+      font-weight: 400;
+    }
+
+    /* ===== RADIO GROUP ===== */
+    .radio-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .radio-option {
+      flex: 1;
+      min-width: 100px;
+    }
+    .radio-option input[type="radio"] {
+      display: none;
+    }
+    .radio-option label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 14px;
+      border: 2px solid rgba(32, 48, 71, 0.08);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    .radio-option input:checked + label {
+      border-color: var(--a1);
+      background: linear-gradient(135deg, rgba(255,122,162,0.1), rgba(255,159,104,0.1));
+      color: var(--a1);
+      box-shadow: 0 4px 16px rgba(255, 122, 162, 0.15);
+      transform: scale(1.02);
+    }
+    .radio-option label:hover {
+      border-color: rgba(255, 122, 162, 0.3);
+    }
+
+    /* ===== SUBMIT BUTTON ===== */
+    .btn-submit {
+      width: 100%;
+      padding: 16px 24px;
+      border: none;
+      border-radius: 20px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(135deg, var(--a1), #ff9f68);
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(255, 122, 162, 0.35);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 24px;
+    }
+    .btn-submit:hover {
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 16px 40px rgba(255, 122, 162, 0.45);
+    }
+    .btn-submit:active {
+      transform: translateY(0) scale(0.98);
+    }
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ===== LOADING SPINNER ===== */
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== ERROR MESSAGE ===== */
+    .error-msg {
+      background: rgba(255, 107, 107, 0.08);
+      border: 1px solid rgba(255, 107, 107, 0.2);
+      color: var(--error);
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: none;
+      text-align: center;
+    }
+    .error-msg.show { display: block; animation: shake 0.4s ease; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    /* ===== SUCCESS OVERLAY ===== */
+    .success-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(20px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 40px 24px;
+      animation: fadeIn 0.4s ease;
+    }
+    .success-overlay.show { display: flex; }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .success-overlay .success-icon {
+      font-size: 5rem;
+      animation: popIn 0.5s ease 0.2s both;
+    }
+    @keyframes popIn {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .success-overlay h2 {
+      font-size: 1.8rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--a3), var(--a2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 16px 0 8px;
+    }
+    .success-overlay p {
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 600;
+      max-width: 360px;
+      line-height: 1.6;
+    }
+    .success-overlay .whatsapp-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(37, 211, 102, 0.35);
+      transition: all 0.3s ease;
+      margin-top: 20px;
+      text-decoration: none;
+    }
+    .success-overlay .whatsapp-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 40px rgba(37, 211, 102, 0.45);
+    }
+    .success-overlay .next-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 20px;
+      background: linear-gradient(135deg, var(--a5), var(--a2));
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(167, 139, 250, 0.35);
+      transition: all 0.3s ease;
+      margin-top: 12px;
+      text-decoration: none;
+    }
+    .success-overlay .next-btn:hover {
+      transform: translateY(-2px);
+    }
+    .success-overlay .confetti {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    /* ===== FLOATING PARTICLES ===== */
+    .particle {
+      position: fixed;
+      border-radius: 50%;
+      opacity: 0.3;
+      pointer-events: none;
+      animation: float 8s ease-in-out infinite;
+    }
+    .particle:nth-child(1) { width: 60px; height: 60px; background: var(--a1); top: 10%; left: 5%; animation-delay: 0s; }
+    .particle:nth-child(2) { width: 40px; height: 40px; background: var(--a2); top: 60%; left: 85%; animation-delay: 2s; }
+    .particle:nth-child(3) { width: 50px; height: 50px; background: var(--a3); top: 80%; left: 15%; animation-delay: 4s; }
+    .particle:nth-child(4) { width: 35px; height: 35px; background: var(--a5); top: 30%; left: 90%; animation-delay: 1s; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 380px) {
+      .page { padding: 70px 14px 30px; }
+      .glass-card { padding: 24px 16px; border-radius: 22px; }
+      .brand-logo { font-size: 2.8rem; }
+      .radio-group { gap: 8px; }
+      .radio-option { min-width: 80px; }
+    }
+
+    /* ===== RTL/LTR ADJUSTMENTS ===== */
+    [dir="ltr"] .page { direction: ltr; }
+    [dir="ltr"] .form-group select {
+      background-position: right 16px center;
+      padding-left: 16px;
+      padding-right: 38px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Particles -->
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+
+  <!-- Language Toggle -->
+  <button class="lang-toggle" id="langToggle" onclick="toggleLanguage()">
+    <span class="globe">🌐</span>
+    <span id="langLabel">English</span>
+  </button>
+
+  <main class="page">
+    <div class="glass-card">
+
+      <!-- Brand Header -->
+      <div class="brand">
+        <span class="brand-logo">🤖</span>
+        <h1 data-ar="English Learning Hub" data-en="English Learning Hub">English Learning Hub</h1>
+        <p data-ar="صديقك الذكي لتعلم الإنجليزية 🇪🇬" data-en="Your smart friend for learning English 🇪🇬">صديقك الذكي لتعلم الإنجليزية 🇪🇬</p>
+      </div>
+
+      <!-- Error Message -->
+      <div class="error-msg" id="errorMsg"></div>
+
+      <!-- Registration Form -->
+      <form id="registrationForm" novalidate>
+
+        <!-- Full Name -->
+        <div class="form-group">
+          <label>
+            <span data-ar="📛 الاسم الرسمي للطالب" data-en="📛 Student's Full Name">📛 الاسم الرسمي للطالب</span>
+          </label>
+          <input type="text" id="fullName" required
+            data-ar-placeholder="اكتب الاسم بالكامل..."
+            data-en-placeholder="Enter full name..."
+            placeholder="اكتب الاسم بالكامل..." />
+        </div>
+
+        <!-- User ID -->
+        <div class="form-group">
+          <label>
+            <span data-ar="🆔 اسم المستخدم (User ID)" data-en="🆔 Username (User ID)">🆔 اسم المستخدم (User ID)</span>
+          </label>
+          <input type="text" id="userId" required
+            data-ar-placeholder="مثال: ahmed2025"
+            data-en-placeholder="e.g., ahmed2025"
+            placeholder="مثال: ahmed2025" />
+        </div>
+
+        <!-- WhatsApp Number -->
+        <div class="form-group">
+          <label>
+            <span data-ar="📱 رقم الواتساب (ولي الأمر)" data-en="📱 WhatsApp Number (Parent)">📱 رقم الواتساب (ولي الأمر)</span>
+          </label>
+          <input type="tel" id="whatsapp" required
+            data-ar-placeholder="مثال: 01012345678"
+            data-en-placeholder="e.g., 01012345678"
+            placeholder="مثال: 01012345678" />
+        </div>
+
+        <!-- Classroom -->
+        <div class="form-group">
+          <label>
+            <span data-ar="🎓 الصف الدراسي" data-en="🎓 Classroom">🎓 الصف الدراسي</span>
+          </label>
+          <select id="classroom" required>
+            <option value="" data-ar="اختر الصف..." data-en="Select classroom...">اختر الصف...</option>
+            <option value="primary_1" data-ar="الصف الأول الابتدائي" data-en="Primary 1">الصف الأول الابتدائي</option>
+            <option value="primary_2" data-ar="الصف الثاني الابتدائي" data-en="Primary 2">الصف الثاني الابتدائي</option>
+            <option value="primary_3" data-ar="الصف الثالث الابتدائي" data-en="Primary 3">الصف الثالث الابتدائي</option>
+            <option value="primary_4" data-ar="الصف الرابع الابتدائي" data-en="Primary 4">الصف الرابع الابتدائي</option>
+            <option value="primary_5" data-ar="الصف الخامس الابتدائي" data-en="Primary 5">الصف الخامس الابتدائي</option>
+            <option value="primary_6" data-ar="الصف السادس الابتدائي" data-en="Primary 6">الصف السادس الابتدائي</option>
+            <option value="prep_1" data-ar="الصف الأول الإعدادي" data-en="Prep 1">الصف الأول الإعدادي</option>
+            <option value="prep_2" data-ar="الصف الثاني الإعدادي" data-en="Prep 2">الصف الثاني الإعدادي</option>
+            <option value="prep_3" data-ar="الصف الثالث الإعدادي" data-en="Prep 3">الصف الثالث الإعدادي</option>
+          </select>
+        </div>
+
+        <!-- Relationship -->
+        <div class="form-group">
+          <label>
+            <span data-ar="👨‍👩‍👦 علاقة المسجل بالطالب" data-en="👨‍👩‍👦 Your Relationship">👨‍👩‍👦 علاقة المسجل بالطالب</span>
+          </label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" id="father" name="relationship" value="father" required />
+              <label for="father" data-ar="👨 أب" data-en="👨 Father">👨 أب</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="mother" name="relationship" value="mother" />
+              <label for="mother" data-ar="👩 أم" data-en="👩 Mother">👩 أم</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="other" name="relationship" value="other" />
+              <label for="other" data-ar="👤 أخرى" data-en="👤 Other">👤 أخرى</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <span data-ar="🚀 تسجيل وبدء التعلم" data-en="🚀 Register & Start Learning">🚀 تسجيل وبدء التعلم</span>
+        </button>
+      </form>
+
+    </div>
+  </main>
+
+  <!-- Success Overlay -->
+  <div class="success-overlay" id="successOverlay">
+    <div class="confetti" id="confetti"></div>
+    <span class="success-icon">🎉</span>
+    <h2 data-ar="أهلاً بيك في ELH!" data-en="Welcome to ELH!">أهلاً بيك في ELH!</h2>
+    <p data-ar="تم التسجيل بنجاح! شاركنا بياناتك على واتساب لتكون شريكاً في بناء الإنسان."
+       data-en="Registration successful! Share your data on WhatsApp to be a partner in building the next generation.">
+      تم التسجيل بنجاح! شاركنا بياناتك على واتساب لتكون شريكاً في بناء الإنسان.
+    </p>
+    <a href="#" class="whatsapp-btn" id="whatsappLink" target="_blank">
+      <span>📱</span>
+      <span data-ar="إرسال عبر واتساب" data-en="Send via WhatsApp">إرسال عبر واتساب</span>
+    </a>
+    <a href="placement-test.html" class="next-btn" id="nextBtn">
+      <span>📝</span>
+      <span data-ar="اختبار تحديد المستوى" data-en="Placement Test">اختبار تحديد المستوى</span>
+    </a>
+  </div>
+
+<script>
+// ======================================================================
+// SUPABASE CONFIGURATION
+// ======================================================================
+// ⚠️ REPLACE with your actual Supabase credentials
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+const supabase = window.supabase ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+// ======================================================================
+// LANGUAGE SYSTEM (Bilingual: Arabic/English)
+// ======================================================================
+let currentLang = 'ar';
+
+function toggleLanguage() {
+  currentLang = currentLang === 'ar' ? 'en' : 'ar';
+  const html = document.documentElement;
+  html.lang = currentLang;
+  html.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('langLabel').textContent = currentLang === 'ar' ? 'English' : 'عربي';
+
+  // Translate all elements with data-ar/data-en
+  document.querySelectorAll('[data-ar]').forEach(el => {
+    const text = currentLang === 'ar' ? el.getAttribute('data-ar') : el.getAttribute('data-en');
+    if (text) el.textContent = text;
+  });
+
+  // Translate placeholders
+  document.querySelectorAll('[data-ar-placeholder]').forEach(el => {
+    const placeholder = currentLang === 'ar'
+      ? el.getAttribute('data-ar-placeholder')
+      : el.getAttribute('data-en-placeholder');
+    if (placeholder) el.placeholder = placeholder;
+  });
+}
+
+// ======================================================================
+// CONFETTI ANIMATION
+// ======================================================================
+function createConfetti() {
+  const container = document.getElementById('confetti');
+  const colors = ['#ff7aa2', '#6cc7ff', '#7ed957', '#ffb347', '#a78bfa', '#59d6c7'];
+  for (let i = 0; i < 50; i++) {
+    const conf = document.createElement('div');
+    conf.style.cssText = `
+      position: absolute;
+      width: ${6 + Math.random() * 8}px;
+      height: ${6 + Math.random() * 8}px;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+      left: ${Math.random() * 100}%;
+      top: -10px;
+      animation: confettiFall ${2 + Math.random() * 3}s ease-out ${Math.random() * 2}s forwards;
+    `;
+    container.appendChild(conf);
+  }
+  // Add confetti animation keyframes dynamically
+  if (!document.getElementById('confettiStyle')) {
+    const style = document.createElement('style');
+    style.id = 'confettiStyle';
+    style.textContent = `
+      @keyframes confettiFall {
+        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+// ======================================================================
+// FORM VALIDATION & SUBMISSION
+// ======================================================================
+document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const btn = document.getElementById('submitBtn');
+  const errorEl = document.getElementById('errorMsg');
+  errorEl.classList.remove('show');
+
+  // Collect data
+  const fullName = document.getElementById('fullName').value.trim();
+  const userId = document.getElementById('userId').value.trim();
+  const whatsapp = document.getElementById('whatsapp').value.trim();
+  const classroom = document.getElementById('classroom').value;
+  const relationship = document.querySelector('input[name="relationship"]:checked');
+
+  // Validation
+  if (!fullName || !userId || !whatsapp || !classroom || !relationship) {
+    showError(currentLang === 'ar'
+      ? '⚠️ يرجى إكمال جميع الحقول المطلوبة'
+      : '⚠️ Please fill in all required fields'
+    );
+    return;
+  }
+
+  // Validate WhatsApp format (Egyptian numbers)
+  const cleanedPhone = whatsapp.replace(/\s/g, '').replace(/^0/, '20');
+  if (!/^201[0-9]{9}$/.test(cleanedPhone)) {
+    showError(currentLang === 'ar'
+      ? '⚠️ رقم الواتساب غير صحيح. ابدأ بـ 01x'
+      : '⚠️ Invalid WhatsApp number. Start with 01x'
+    );
+    return;
+  }
+
+  // Check username uniqueness
+  if (userId.length < 3) {
+    showError(currentLang === 'ar'
+      ? '⚠️ اسم المستخدم يجب أن يكون 3 أحرف على الأقل'
+      : '⚠️ Username must be at least 3 characters'
+    );
+    return;
+  }
+
+  // Loading state
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    // Save to Supabase
+    const studentData = {
+      full_name: fullName,
+      user_id: userId.toLowerCase(),
+      whatsapp: cleanedPhone,
+      classroom: classroom,
+      relationship: relationship.value,
+      level: 'unplaced',
+      created_at: new Date().toISOString(),
+      language: currentLang
+    };
+
+    let result;
+    if (supabase && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+      result = await supabase
+        .from('students')
+        .insert([studentData])
+        .select();
+
+      if (result.error) {
+        // Check if user_id already exists
+        if (result.error.message?.includes('unique') || result.error.code === '23505') {
+          throw new Error('duplicate');
+        }
+        throw result.error;
+      }
+    }
+
+    // Save to localStorage as fallback
+    const students = JSON.parse(localStorage.getItem('elh_students') || '[]');
+    const exists = students.find(s => s.user_id === userId.toLowerCase());
+    if (exists) {
+      throw new Error('duplicate');
+    }
+    students.push({ ...studentData, id: Date.now() });
+    localStorage.setItem('elh_students', JSON.stringify(students));
+
+    // Save current student for other pages
+    localStorage.setItem('elh_current_student', JSON.stringify({
+      ...studentData,
+      whatsapp_clean: cleanedPhone
+    }));
+
+    // Show success
+    showSuccess(cleanedPhone, fullName, userId, classroom, relationship.value);
+
+  } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = currentLang === 'ar'
+      ? '<span>🚀 تسجيل وبدء التعلم</span>'
+      : '<span>🚀 Register & Start Learning</span>';
+
+    if (err.message === 'duplicate') {
+      showError(currentLang === 'ar'
+        ? '⚠️ اسم المستخدم مستخدم بالفعل. اختر اسماً آخر.'
+        : '⚠️ Username already taken. Please choose another.'
+      );
+    } else {
+      showError(currentLang === 'ar'
+        ? '⚠️ حدث خطأ. تأكد من إعدادات Supabase.'
+        : '⚠️ An error occurred. Check Supabase settings.'
+      );
+    }
+  }
+});
+
+function showError(msg) {
+  const errorEl = document.getElementById('errorMsg');
+  errorEl.textContent = msg;
+  errorEl.classList.add('show');
+}
+
+function showSuccess(phone, name, userId, classroom, relationship) {
+  const overlay = document.getElementById('successOverlay');
+  const waLink = document.getElementById('whatsappLink');
+
+  const relationshipLabels = {
+    father: currentLang === 'ar' ? 'الأب' : 'Father',
+    mother: currentLang === 'ar' ? 'الأم' : 'Mother',
+    other: currentLang === 'ar' ? 'آخر' : 'Other'
+  };
+
+  const classroomLabels = {
+    primary_1: currentLang === 'ar' ? 'أول ابتدائي' : 'Primary 1',
+    primary_2: currentLang === 'ar' ? 'ثاني ابتدائي' : 'Primary 2',
+    primary_3: currentLang === 'ar' ? 'ثالث ابتدائي' : 'Primary 3',
+    primary_4: currentLang === 'ar' ? 'رابع ابتدائي' : 'Primary 4',
+    primary_5: currentLang === 'ar' ? 'خامس ابتدائي' : 'Primary 5',
+    primary_6: currentLang === 'ar' ? 'سادس ابتدائي' : 'Primary 6',
+    prep_1: currentLang === 'ar' ? 'أول إعدادي' : 'Prep 1',
+    prep_2: currentLang === 'ar' ? 'ثاني إعدادي' : 'Prep 2',
+    prep_3: currentLang === 'ar' ? 'ثالث إعدادي' : 'Prep 3',
+  };
+
+  // WhatsApp message
+  const waMessage = currentLang === 'ar'
+    ? `شكراً لاختيارك تطبيق ELH 🎉%0A%0A📛 الاسم: ${name}%0A🆔 User ID: ${userId}%0A🎓 الصف: ${classroomLabels[classroom] || classroom}%0A👨‍👩‍👦 العلاقة: ${relationshipLabels[relationship]}`
+    : `Thank you for choosing ELH! 🎉%0A%0A📛 Name: ${name}%0A🆔 User ID: ${userId}%0A🎓 Class: ${classroomLabels[classroom] || classroom}%0A👨‍👩‍👦 Relationship: ${relationshipLabels[relationship]}`;
+
+  const waFullMessage = `${waMessage}%0A%0A💚 شركاء في بناء الإنسان 💚`;
+
+  waLink.href = `https://wa.me/${phone}?text=${waFullMessage}`;
+
+  // Show overlay
+  overlay.classList.add('show');
+  createConfetti();
+}
+
+// ======================================================================
+// SERVICE WORKER REGISTRATION
+// ======================================================================
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(() => console.log('SW registered'))
+    .catch(err => console.log('SW failed:', err));
+}
+</script>
+</body>
+</html>

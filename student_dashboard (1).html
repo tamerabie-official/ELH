@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#ff7aa2" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>English Learning Hub - لوحة الطالب</title>
+  <link rel="icon" type="image/png" href="icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- ===== STUDENT DASHBOARD =====
+       Design Principles:
+       - Glass morphism: Creates depth and focus (reduces cognitive load)
+       - 6-unit grid: Chunked learning (Miller's Law - 7±2 items)
+       - Progress bar: Visual goal-gradient effect (behavioral psychology)
+       - Robot Friend: Social presence reduces learning anxiety
+       - Today's Mission: Daily commitment device (implementation intention)
+       - Streak counter: Loss aversion motivates daily practice
+  -->
+
+  <style>
+    :root{
+      --bg1:#fff8fb;
+      --bg2:#eef7ff;
+      --ink:#203047;
+      --muted:#6b7a90;
+      --card:#ffffff;
+      --shadow:0 16px 40px rgba(35,55,90,.10);
+      --radius:28px;
+      --a1:#ff7aa2;
+      --a2:#6cc7ff;
+      --a3:#7ed957;
+      --a4:#ffb347;
+      --a5:#a78bfa;
+      --a6:#59d6c7;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Cairo',sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(255,122,162,.20), transparent 28%),
+        radial-gradient(circle at top right, rgba(108,199,255,.18), transparent 24%),
+        linear-gradient(180deg,var(--bg1),var(--bg2));
+      min-height:100vh;
+    }
+    .page{max-width:1200px;margin:0 auto;padding:28px 18px 40px}
+
+    /* ===== TOP NAV ===== */
+    .top-nav{
+      display:flex;justify-content:space-between;align-items:center;
+      margin-bottom:20px;
+    }
+    .student-info{
+      display:flex;align-items:center;gap:10px;
+      background:rgba(255,255,255,.7);backdrop-filter:blur(10px);
+      border-radius:999px;padding:8px 18px 8px 8px;
+      border:1px solid rgba(255,255,255,.8);box-shadow:0 4px 16px rgba(35,55,90,.06)
+    }
+    .student-avatar{
+      width:42px;height:42px;border-radius:50%;
+      background:linear-gradient(135deg,var(--a1),var(--a4));
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.3rem;color:#fff;font-weight:800
+    }
+    .student-name{font-weight:800;font-size:.95rem}
+    .student-class{font-size:.8rem;color:var(--muted);font-weight:600}
+
+    .nav-actions{display:flex;gap:10px}
+    .nav-btn{
+      width:42px;height:42px;border-radius:50%;border:none;
+      background:rgba(255,255,255,.7);backdrop-filter:blur(10px);
+      font-size:1.2rem;cursor:pointer;
+      box-shadow:0 4px 16px rgba(35,55,90,.06);
+      display:flex;align-items:center;justify-content:center;
+      transition:all .25s ease
+    }
+    .nav-btn:hover{transform:scale(1.1);background:rgba(255,255,255,.9)}
+
+    /* ===== HERO ===== */
+    .hero{
+      position:relative;
+      background:rgba(255,255,255,.78);
+      backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,.8);
+      box-shadow:var(--shadow);
+      border-radius:34px;
+      padding:28px;
+      overflow:hidden;
+    }
+    .hero-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:20px;align-items:center;position:relative;z-index:1}
+    .welcome{font-size:clamp(2rem,5vw,3.2rem);line-height:1.05;margin:0 0 10px;font-weight:800}
+    .subtitle{margin:0;color:var(--muted);font-size:1.05rem;max-width:650px;line-height:1.6}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+    .btn{
+      border:none;border-radius:18px;padding:14px 20px;font-weight:800;cursor:pointer;
+      box-shadow:0 10px 18px rgba(0,0,0,.08);transition:.22s ease;font-family:inherit;
+      font-size:.95rem
+    }
+    .btn:hover{transform:translateY(-2px) scale(1.01)}
+    .btn.primary{background:linear-gradient(135deg,var(--a1),#ff9f68);color:#fff}
+    .btn.secondary{background:#fff;color:var(--ink);border:1px solid rgba(32,48,71,.10)}
+
+    .robot{
+      background:linear-gradient(180deg,#fff,#f7fbff);
+      border-radius:28px;padding:18px;border:1px solid rgba(32,48,71,.08);
+      box-shadow:0 10px 26px rgba(0,0,0,.06);text-align:center
+    }
+    .robot-emoji{font-size:4.8rem;line-height:1;margin-bottom:8px;
+      animation:bounce 3s ease infinite}
+    @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    .robot p{margin:0;color:var(--muted);font-weight:700}
+    .robot .robot-status{
+      font-size:.8rem;color:var(--a3);font-weight:800;margin-top:4px
+    }
+
+    /* ===== PROGRESS ===== */
+    .progress{
+      margin-top:18px;background:#fff;border-radius:24px;padding:18px;
+      border:1px solid rgba(32,48,71,.08);box-shadow:var(--shadow)
+    }
+    .progress-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+    .progress-head h2{margin:0;font-size:1.2rem}
+    .progress-bar{height:16px;background:#eef3fb;border-radius:999px;overflow:hidden}
+    .progress-bar span{display:block;height:100%;width:34%;border-radius:999px;background:linear-gradient(90deg,var(--a3),var(--a2),var(--a1));transition:width .8s ease}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+    .stat{background:#f8fbff;border-radius:20px;padding:14px 12px;text-align:center;border:1px solid rgba(32,48,71,.06);transition:.25s ease}
+    .stat:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(35,55,90,.08)}
+    .stat strong{display:block;font-size:1.4rem;background:linear-gradient(135deg,var(--a1),var(--a5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .stat span{color:var(--muted);font-size:.85rem;font-weight:600}
+
+    /* ===== SECTION TITLE ===== */
+    .section-title{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:30px 4px 14px}
+    .section-title h2{margin:0;font-size:1.5rem}
+    .section-title p{margin:0;color:var(--muted);font-size:.9rem}
+
+    /* ===== UNITS GRID ===== */
+    .units{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .unit{
+      position:relative;overflow:hidden;background:var(--card);border-radius:var(--radius);padding:22px;
+      box-shadow:var(--shadow);border:1px solid rgba(32,48,71,.06);min-height:210px;transition:.25s ease;
+      cursor:pointer;text-decoration:none;color:var(--ink);display:block
+    }
+    .unit:hover{transform:translateY(-4px);box-shadow:0 20px 50px rgba(35,55,90,.14)}
+    .unit .badge{display:inline-flex;align-items:center;gap:8px;background:rgba(32,48,71,.06);padding:8px 12px;border-radius:999px;font-weight:800;font-size:.85rem}
+    .unit h3{margin:16px 0 8px;font-size:1.6rem;line-height:1.1}
+    .unit p{margin:0;color:var(--muted);font-weight:600;font-size:.9rem}
+    .unit .cta{margin-top:18px;display:inline-flex;align-items:center;gap:10px;border:none;border-radius:16px;padding:12px 16px;color:#fff;font-weight:800;cursor:pointer;font-family:inherit;font-size:.9rem}
+    .u1{background:linear-gradient(135deg,#fff,#fff6f8)} .u1 .cta{background:linear-gradient(135deg,#ff7aa2,#ff9f68)}
+    .u2{background:linear-gradient(135deg,#fff,#f2fbff)} .u2 .cta{background:linear-gradient(135deg,#53baff,#6dd5ed)}
+    .u3{background:linear-gradient(135deg,#fff,#f5fff4)} .u3 .cta{background:linear-gradient(135deg,#7ed957,#3fd18a)}
+    .u4{background:linear-gradient(135deg,#fff,#f8f4ff)} .u4 .cta{background:linear-gradient(135deg,#9d7cff,#6c8cff)}
+    .u5{background:linear-gradient(135deg,#fff,#fffaf2)} .u5 .cta{background:linear-gradient(135deg,#ffb347,#ff8a5b)}
+    .u6{background:linear-gradient(135deg,#fff,#f1fffd)} .u6 .cta{background:linear-gradient(135deg,#26c6da,#59d6c7)}
+    .unit .icon{position:absolute;right:18px;top:18px;font-size:2.2rem;opacity:.95}
+    [dir="ltr"] .unit .icon{right:auto;left:18px}
+    .pill{margin-top:16px;display:inline-block;background:rgba(32,48,71,.06);padding:7px 11px;border-radius:999px;font-size:.82rem;font-weight:700}
+
+    /* ===== MISSION ===== */
+    .mission{
+      margin-top:18px;background:linear-gradient(135deg,#1f2f4a,#2f5b8f);color:#fff;border-radius:28px;padding:22px;
+      box-shadow:var(--shadow);display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center
+    }
+    .mission h2,.mission p{margin:0}
+    .mission p{opacity:.88;font-size:.95rem}
+    .mission .btn{box-shadow:none}
+
+    /* ===== LANGUAGE TOGGLE ===== */
+    .lang-toggle{
+      position:fixed;top:16px;left:16px;z-index:100;
+      background:var(--card);backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,.8);border-radius:999px;
+      padding:8px 16px;font-family:'Cairo',sans-serif;
+      font-weight:800;font-size:.9rem;cursor:pointer;
+      box-shadow:var(--shadow);color:var(--ink);
+      transition:all .3s ease;display:flex;align-items:center;gap:6px
+    }
+    .lang-toggle:hover{transform:scale(1.05)}
+
+    /* ===== RESPONSIVE ===== */
+    @media(max-width:960px){
+      .hero-grid,.mission{grid-template-columns:1fr}
+      .units{grid-template-columns:repeat(2,1fr)}
+      .stats{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:640px){
+      .page{padding:14px}
+      .hero{padding:20px}
+      .units{grid-template-columns:1fr}
+      .stats{grid-template-columns:1fr 1fr}
+      .welcome{font-size:2rem}
+      .unit{min-height:180px}
+    }
+
+    /* ===== GLOW EFFECT ===== */
+    .glow{
+      position:absolute;width:200px;height:200px;border-radius:50%;
+      filter:blur(60px);opacity:.15;pointer-events:none
+    }
+    .glow1{background:var(--a1);top:-50px;right:-50px}
+    .glow2{background:var(--a2);bottom:-50px;left:-50px}
+
+    /* ===== NOTIFICATION BADGE ===== */
+    .notif-badge{
+      position:relative
+    }
+    .notif-badge::after{
+      content:'1';position:absolute;top:-4px;right:-4px;
+      width:16px;height:16px;background:var(--error);
+      border-radius:50%;font-size:.6rem;font-weight:800;
+      color:#fff;display:flex;align-items:center;justify-content:center
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Language Toggle -->
+  <button class="lang-toggle" onclick="toggleLanguage()">
+    <span>🌐</span>
+    <span id="langLabel">English</span>
+  </button>
+
+  <main class="page">
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+      <div class="student-info">
+        <div class="student-avatar" id="studentAvatar">A</div>
+        <div>
+          <div class="student-name" id="studentName">Student</div>
+          <div class="student-class" id="studentClass">Primary 3</div>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <button class="nav-btn notif-badge" title="Notifications">🔔</button>
+        <button class="nav-btn" title="Settings" onclick="alert('Settings coming soon!')">⚙️</button>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="glow glow1"></div>
+      <div class="glow glow2"></div>
+      <div class="hero-grid">
+        <div>
+          <h1 class="welcome" data-ar="Welcome to My Family! 🏠" data-en="Welcome to My Family! 🏠">Welcome to My Family! 🏠</h1>
+          <p class="subtitle" data-ar="Meet the people in your home, learn family words, and practice simple speaking with your Robot Friend." data-en="Meet the people in your home, learn family words, and practice simple speaking with your Robot Friend.">Meet the people in your home, learn family words, and practice simple speaking with your Robot Friend.</p>
+          <div class="actions">
+            <button class="btn primary" onclick="window.location.href='unit1.html'" data-ar="Start Family 👨‍👩‍👧‍👦" data-en="Start Family 👨‍👩‍👧‍👦">Start Family 👨‍👩‍👧‍👦</button>
+            <button class="btn secondary" data-ar="Today's Mission ✨" data-en="Today's Mission ✨">Today's Mission ✨</button>
+          </div>
+        </div>
+        <div class="robot">
+          <div class="robot-emoji">🤖</div>
+          <p>Robot Friend</p>
+          <div class="robot-status">● Online</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Progress Section -->
+    <section class="progress">
+      <div class="progress-head">
+        <h2 data-ar="My Progress" data-en="My Progress">My Progress</h2>
+        <strong id="progressPercent">34% Completed</strong>
+      </div>
+      <div class="progress-bar"><span id="progressFill"></span></div>
+      <div class="stats">
+        <div class="stat"><strong id="starCount">8</strong><span data-ar="نجوم" data-en="Stars">Stars</span></div>
+        <div class="stat"><strong id="unitCount">2</strong><span data-ar="وحدات مكتملة" data-en="Units Done">Units Done</span></div>
+        <div class="stat"><strong id="badgeCount">1</strong><span data-ar="شارات" data-en="Badges">Badges</span></div>
+        <div class="stat"><strong id="streakCount">2</strong><span data-ar="أيام متتالية" data-en="Day Streak">Day Streak</span></div>
+      </div>
+    </section>
+
+    <!-- Section Title -->
+    <div class="section-title">
+      <div>
+        <h2 data-ar="Learning Parts" data-en="Learning Parts">Learning Parts</h2>
+        <p data-ar="Move in order and keep the family story clear." data-en="Move in order and keep the family story clear.">Move in order and keep the family story clear.</p>
+      </div>
+    </div>
+
+    <!-- Units Grid -->
+    <section class="units">
+      <a href="unit1.html" class="unit u1">
+        <div class="icon">👩</div>
+        <div class="badge">PART 1</div>
+        <h3>MOTHER</h3>
+        <p>Learn how to say mother.</p>
+        <span class="pill" data-ar="مفتوح" data-en="Open">مفتوح</span><br>
+        <button class="cta">PLAY 👩</button>
+      </a>
+
+      <a href="unit1.html" class="unit u2">
+        <div class="icon">👨</div>
+        <div class="badge">PART 2</div>
+        <h3>FATHER</h3>
+        <p>Learn how to say father.</p>
+        <span class="pill" data-ar="مفتوح" data-en="Open">مفتوح</span><br>
+        <button class="cta">TRY 👨</button>
+      </a>
+
+      <a href="unit1.html" class="unit u3">
+        <div class="icon">👧</div>
+        <div class="badge">PART 3</div>
+        <h3>SISTER</h3>
+        <p>Meet your sister in English.</p>
+        <span class="pill" data-ar="مفتوح" data-en="Open">مفتوح</span><br>
+        <button class="cta">SAY 👧</button>
+      </a>
+
+      <a href="unit1.html" class="unit u4">
+        <div class="icon">👦</div>
+        <div class="badge">PART 4</div>
+        <h3>BROTHER</h3>
+        <p>Learn the word brother.</p>
+        <span class="pill" data-ar="مفتوح" data-en="Open">مفتوح</span><br>
+        <button class="cta">CHAT 👦</button>
+      </a>
+
+      <a href="unit1.html" class="unit u5">
+        <div class="icon">👵</div>
+        <div class="badge">PART 5</div>
+        <h3>GRANDMA</h3>
+        <p>Meet grandma in English.</p>
+        <span class="pill" data-ar="مفتوح" data-en="Open">مفتوح</span><br>
+        <button class="cta">END 👵</button>
+      </a>
+
+      <a href="unit1.html" class="unit u6">
+        <div class="icon">⭐</div>
+        <div class="badge">PART 6</div>
+        <h3>REVIEW</h3>
+        <p>Repeat the family words and earn stars.</p>
+        <span class="pill" data-ar="مفتوح" data-en="Open">مفتوح</span><br>
+        <button class="cta">REPEAT ⭐</button>
+      </a>
+    </section>
+
+    <!-- Today's Mission -->
+    <section class="mission">
+      <div>
+        <h2 data-ar="Today's Mission" data-en="Today's Mission">Today's Mission</h2>
+        <p data-ar="Say mother, father, sister, and brother with the robot." data-en="Say mother, father, sister, and brother with the robot.">Say mother, father, sister, and brother with the robot.</p>
+      </div>
+      <button class="btn primary" data-ar="Play Mission ✨" data-en="Play Mission ✨">Play Mission ✨</button>
+    </section>
+
+  </main>
+
+<script>
+// ======================================================================
+// SUPABASE CONFIG
+// ======================================================================
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const supabase = window.supabase ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+// ======================================================================
+// LOAD STUDENT DATA
+// ======================================================================
+const currentStudent = JSON.parse(localStorage.getItem('elh_current_student') || '{}');
+
+if (currentStudent.full_name) {
+  document.getElementById('studentName').textContent = currentStudent.full_name;
+  document.getElementById('studentAvatar').textContent = currentStudent.full_name.charAt(0).toUpperCase();
+
+  const classLabels = {
+    primary_1: { ar: 'أول ابتدائي', en: 'Primary 1' },
+    primary_2: { ar: 'ثاني ابتدائي', en: 'Primary 2' },
+    primary_3: { ar: 'ثالث ابتدائي', en: 'Primary 3' },
+    primary_4: { ar: 'رابع ابتدائي', en: 'Primary 4' },
+    primary_5: { ar: 'خامس ابتدائي', en: 'Primary 5' },
+    primary_6: { ar: 'سادس ابتدائي', en: 'Primary 6' },
+    prep_1: { ar: 'أول إعدادي', en: 'Prep 1' },
+    prep_2: { ar: 'ثاني إعدادي', en: 'Prep 2' },
+    prep_3: { ar: 'ثالث إعدادي', en: 'Prep 3' },
+  };
+  document.getElementById('studentClass').textContent = classLabels[currentStudent.classroom]?.ar || currentStudent.classroom;
+}
+
+// ======================================================================
+// LOAD PROGRESS FROM SUPABASE OR LOCALSTORAGE
+// ======================================================================
+async function loadProgress() {
+  let progress = {
+    completed_units: 2,
+    total_units: 6,
+    stars: 8,
+    badges: 1,
+    streak: 2,
+    last_login: new Date().toISOString()
+  };
+
+  if (supabase && SUPABASE_URL !== 'YOUR_SUPABASE_URL' && currentStudent.user_id) {
+    try {
+      const { data, error } = await supabase
+        .from('student_progress')
+        .select('*')
+        .eq('user_id', currentStudent.user_id)
+        .single();
+
+      if (data) {
+        progress = { ...progress, ...data };
+      }
+    } catch(e) {
+      console.warn('Could not load progress from Supabase');
+    }
+  }
+
+  // Update UI
+  const percent = Math.round((progress.completed_units / progress.total_units) * 100);
+  document.getElementById('progressPercent').textContent = `${percent}% Completed`;
+  document.getElementById('progressFill').style.width = `${percent}%`;
+  document.getElementById('starCount').textContent = progress.stars || 8;
+  document.getElementById('unitCount').textContent = progress.completed_units || 2;
+  document.getElementById('badgeCount').textContent = progress.badges || 1;
+  document.getElementById('streakCount').textContent = progress.streak || 2;
+
+  // Save last login
+  localStorage.setItem('elh_progress', JSON.stringify(progress));
+}
+
+loadProgress();
+
+// ======================================================================
+// LANGUAGE SYSTEM
+// ======================================================================
+let currentLang = 'ar';
+
+function toggleLanguage() {
+  currentLang = currentLang === 'ar' ? 'en' : 'ar';
+  const html = document.documentElement;
+  html.lang = currentLang;
+  html.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('langLabel').textContent = currentLang === 'ar' ? 'English' : 'عربي';
+
+  document.querySelectorAll('[data-ar]').forEach(el => {
+    const text = currentLang === 'ar' ? el.getAttribute('data-ar') : el.getAttribute('data-en');
+    if (text) el.textContent = text;
+  });
+
+  // Update class label
+  const classLabels = {
+    primary_1: 'Primary 1', primary_2: 'Primary 2', primary_3: 'Primary 3',
+    primary_4: 'Primary 4', primary_5: 'Primary 5', primary_6: 'Primary 6',
+    prep_1: 'Prep 1', prep_2: 'Prep 2', prep_3: 'Prep 3',
+  };
+  document.getElementById('studentClass').textContent = classLabels[currentStudent.classroom] || currentStudent.classroom;
+}
+
+// ======================================================================
+// SERVICE WORKER
+// ======================================================================
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .catch(err => console.log('SW:', err));
+}
+
+// ======================================================================
+// DAILY STREAK TRACKING
+// ======================================================================
+function checkStreak() {
+  const lastLogin = localStorage.getItem('elh_last_login_date');
+  const today = new Date().toISOString().split('T')[0];
+
+  if (lastLogin !== today) {
+    localStorage.setItem('elh_last_login_date', today);
+    const prevStreak = parseInt(localStorage.getItem('elh_streak_count') || '0');
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+    if (lastLogin === yesterday || !lastLogin) {
+      localStorage.setItem('elh_streak_count', String(prevStreak + 1));
+    } else {
+      localStorage.setItem('elh_streak_count', '1');
+    }
+  }
+}
+checkStreak();
+</script>
+</body>
+</html>
