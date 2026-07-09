@@ -357,7 +357,7 @@
   </main>
 
 <script>
-// ======================================================================
+
 // SUPABASE CONFIG
 // ======================================================================
 const SUPABASE_URL = 'https://rwtdoefmhwaakrxmwklb.supabase.co';
@@ -472,7 +472,7 @@ function checkStreak() {
   const lastLogin = localStorage.getItem('elh_last_login_date');
   const today = new Date().toISOString().split('T')[0];
 
-  if (lastLogin !== today) {
+   (lastLogin !== today) {
     localStorage.setItem('elh_last_login_date', today);
     const prevStreak = parseInt(localStorage.getItem('elh_streak_count') || '0');
     const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
